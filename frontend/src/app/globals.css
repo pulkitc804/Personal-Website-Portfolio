@@ -1,0 +1,32 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-void text-slate-100 antialiased;
+}
+
+.glass {
+  @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+}
+
+.glass-strong {
+  @apply border border-cyan-glow/20 bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl;
+}
+
+.text-gradient {
+  @apply bg-gradient-to-r from-cyan-glow via-sky-300 to-violet-glow bg-clip-text text-transparent;
+}
+
+.grid-bg {
+  background-size: 48px 48px, 48px 48px;
+  background-position: -1px -1px, -1px -1px;
+}
