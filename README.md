@@ -82,9 +82,9 @@ You deploy **two pieces**: the **FastAPI API** first, then the **Next.js site** 
 
 ### A. Deploy the API (Railway — recommended)
 
-1. Push this repo to GitHub.
+1. Push this repo to GitHub. Confirm the **`backend/`** folder is tracked: `git ls-files backend | head` (if empty, run `git add backend && git commit -m "Add API" && git push`).
 2. [Railway](https://railway.app) → **New project** → **Deploy from GitHub** → pick the repo.
-3. Add a **service** and set **Root Directory** to `backend` (or choose “Dockerfile” and point at `backend/Dockerfile`).
+3. **Important:** This repo includes **`railway.toml`** (uses **Docker**) and a **root `Dockerfile`** that builds only `backend/`. You do **not** need to set Root Directory to `frontend` for the API service — leave the service source as the **repo root** so that Dockerfile is used. (If you prefer, you can instead set **Root Directory** to `backend` and delete or ignore the root Dockerfile for that service — both work.)
 4. Railway assigns a public URL like `https://your-api.up.railway.app`. Open `/api/health` to verify.
 5. Under **Variables**, set:
    - **`CORS_ORIGINS`** = your future frontend origin, e.g. `https://your-portfolio.vercel.app` (comma-separate if you add more).

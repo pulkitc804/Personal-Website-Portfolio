@@ -1,0 +1,18 @@
+# Build from repository root (e.g. Railway default) — copies backend only.
+# For local compose, `docker-compose.yml` still builds `./backend` with its own Dockerfile.
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1
+
+COPY backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY backend/app ./app
+
+EXPOSE 8000
+
+ENV PORT=8000
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT}"]

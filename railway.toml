@@ -1,0 +1,6 @@
+# Force Docker (skip Railpack). Requires a Dockerfile at the repo root — see /Dockerfile
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+healthcheckPath = "/api/health"
