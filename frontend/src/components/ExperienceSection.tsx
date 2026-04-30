@@ -1,21 +1,29 @@
 "use client";
 
 import type { ExperienceItem } from "@/lib/types";
+import {
+  appleEase,
+  fadeUpAnimate,
+  fadeUpInitial,
+  scrollTransition,
+  scrollViewport,
+} from "@/lib/motion-presets";
 import { motion } from "framer-motion";
 
 const container = {
   hidden: {},
   show: {
-    transition: { staggerChildren: 0.12 },
+    transition: { staggerChildren: 0.14, delayChildren: 0.08 },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 28 },
+  hidden: { ...fadeUpInitial, y: 28 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+    filter: "blur(0px)",
+    transition: { duration: 0.8, ease: appleEase },
   },
 };
 
@@ -23,27 +31,27 @@ export function ExperienceSection({ items }: { items: ExperienceItem[] }) {
   return (
     <section
       id="experience"
-      className="relative border-t border-white/[0.06] bg-gradient-to-b from-transparent via-panel/40 to-transparent px-4 py-24 sm:px-6"
+      className="relative snap-start snap-always border-y border-white/[0.06] bg-gradient-to-b from-panel/20 via-panel/35 to-panel/10 px-4 py-28 sm:px-6"
     >
       <div className="mx-auto max-w-6xl">
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.6 }}
-          className="mb-12 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
+          initial={fadeUpInitial}
+          whileInView={fadeUpAnimate}
+          viewport={scrollViewport}
+          transition={scrollTransition}
+          className="mb-14 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between"
         >
           <div>
             <p className="font-mono text-xs uppercase tracking-[0.28em] text-cyan-glow">
               Experience
             </p>
             <h2 className="mt-2 text-3xl font-semibold text-white sm:text-4xl">
-              Roles with measurable impact
+              Execution with measurable impact
             </h2>
           </div>
           <p className="max-w-md text-sm text-slate-400">
-            Teaching, quantitative research, and club leadership — each lane
-            optimized for throughput, rigor, and engagement.
+            Quant research, high-accountability teaching, and operations leadership
+            with concrete outcomes.
           </p>
         </motion.div>
 
@@ -51,7 +59,7 @@ export function ExperienceSection({ items }: { items: ExperienceItem[] }) {
           variants={container}
           initial="hidden"
           whileInView="show"
-          viewport={{ once: true, margin: "-60px" }}
+          viewport={scrollViewport}
           className="relative pl-6 sm:pl-10"
         >
           <div className="pointer-events-none absolute left-0 top-0 h-full w-px bg-gradient-to-b from-cyan-glow/70 via-white/15 to-violet-glow/50" />
@@ -61,7 +69,9 @@ export function ExperienceSection({ items }: { items: ExperienceItem[] }) {
               <motion.article
                 key={role.id}
                 variants={itemVariants}
-                className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 shadow-card transition hover:border-cyan-glow/35 hover:shadow-glow sm:p-8"
+                whileHover={{ y: -4 }}
+                transition={{ type: "spring", stiffness: 420, damping: 28 }}
+                className="group relative overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.02] p-6 shadow-card transition hover:border-cyan-glow/25 sm:p-8"
               >
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-cyan-glow/5 via-transparent to-violet-glow/10 opacity-0 transition group-hover:opacity-100" />
                 <div className="relative flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">

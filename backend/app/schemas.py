@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 class ProfileResponse(BaseModel):
     name: str
     headline: str
+    bio: str
     gpa: str
     coursework: list[str]
     linkedin_url: str
@@ -26,9 +27,15 @@ class ProjectItem(BaseModel):
     tags: list[str]
     description: str
     highlights: list[str]
+    github_url: str
+
+
+class SkillGroup(BaseModel):
+    label: str
+    items: list[str]
 
 
 class SkillsResponse(BaseModel):
-    languages_tools: list[str]
+    skill_groups: list[SkillGroup]
     awards: list[str]
     certifications: list[str]

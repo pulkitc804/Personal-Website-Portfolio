@@ -6,27 +6,107 @@
   color-scheme: dark;
 }
 
+/*
+  Native document scrolling + scroll-snap: advancing the page snaps major
+  sections into place (nav offset via scroll-padding-top).
+*/
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 3.75rem;
+  scroll-snap-type: y mandatory;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-snap-type: none;
+  }
 }
 
 body {
-  @apply bg-void text-slate-100 antialiased;
+  @apply bg-void text-slate-50 antialiased;
 }
 
 .glass {
-  @apply border border-white/10 bg-white/[0.04] backdrop-blur-xl;
+  @apply border border-white/20 bg-white/10 backdrop-blur-xl;
 }
 
 .glass-strong {
-  @apply border border-cyan-glow/20 bg-gradient-to-br from-white/[0.07] to-white/[0.02] backdrop-blur-2xl;
+  @apply border border-cyan-glow/30 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl;
 }
 
 .text-gradient {
-  @apply bg-gradient-to-r from-cyan-glow via-sky-300 to-violet-glow bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-cyan-glow via-red-200 to-violet-glow bg-clip-text text-transparent;
+}
+
+/*
+  Hero name: gradient text. Tailwind display sizes default to line-height: 1, which
+  clips descenders with background-clip:text — pair with generous leading on h1
+  plus a little vertical padding so glyphs (y, g, p) stay fully inside the line box.
+*/
+.hero-name {
+  display: inline-block;
+  line-height: inherit;
+  padding: 0.06em 0 0.14em;
+  background-image: linear-gradient(
+    105deg,
+    #ffffff 0%,
+    #ffe4e6 14%,
+    #fda4af 34%,
+    #f87171 52%,
+    #fb7185 66%,
+    #fecdd3 86%,
+    #f8fafc 100%
+  );
+  background-size: 100% 100%;
+  background-position: 0 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  /* Slight halo so anti-aliased edges read crisp (not “faded”) */
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5))
+    drop-shadow(0 0 22px rgba(248, 113, 113, 0.2));
 }
 
 .grid-bg {
   background-size: 48px 48px, 48px 48px;
   background-position: -1px -1px, -1px -1px;
+}
+
+.bg-aurora {
+  background: radial-gradient(
+      ellipse 120% 80% at 15% 20%,
+      rgba(248, 113, 113, 0.18),
+      transparent 55%
+    ),
+    radial-gradient(
+      ellipse 90% 70% at 90% 30%,
+      rgba(253, 164, 175, 0.16),
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse 70% 50% at 50% 100%,
+      rgba(225, 29, 72, 0.1),
+      transparent 55%
+    );
+  animation: aurora-shift 24s ease-in-out infinite alternate;
+}
+
+@keyframes aurora-shift {
+  0% {
+    filter: hue-rotate(0deg);
+    transform: scale(1) translate(0, 0);
+    opacity: 1;
+  }
+  100% {
+    filter: hue-rotate(12deg);
+    transform: scale(1.04) translate(-1%, 1%);
+    opacity: 0.92;
+  }
+}
+
+.noise-overlay {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

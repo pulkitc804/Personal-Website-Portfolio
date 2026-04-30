@@ -5,13 +5,39 @@ Placeholder routes return structured JSON suitable for the Next.js frontend.
 Extend with:
   - POST /api/inference — load and serve ML models
   - WebSocket /ws/telemetry — live sensor or trading streams
+
+Production CORS:
+  - CORS_ORIGINS: comma-separated list, e.g. https://your-app.vercel.app
+  - CORS_ORIGIN_REGEX: optional, e.g. https://.*\\.vercel\\.app for all previews
 """
+
+import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.data import EXPERIENCE, PROFILE, PROJECTS, SKILLS
 from app.schemas import ExperienceItem, ProfileResponse, ProjectItem, SkillsResponse
+
+_DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+
+def _cors_settings() -> tuple[list[str], str | None]:
+    origins = list(_DEFAULT_CORS_ORIGINS)
+    extra = os.getenv("CORS_ORIGINS", "").strip()
+    if extra:
+        for part in extra.split(","):
+            o = part.strip()
+            if o and o not in origins:
+                origins.append(o)
+    regex = os.getenv("CORS_ORIGIN_REGEX", "").strip() or None
+    return origins, regex
+
+
+_cors_origins, _cors_origin_regex = _cors_settings()
 
 app = FastAPI(
     title="Portfolio API",
@@ -21,10 +47,8 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ],
+    allow_origins=_cors_origins,
+    allow_origin_regex=_cors_origin_regex,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

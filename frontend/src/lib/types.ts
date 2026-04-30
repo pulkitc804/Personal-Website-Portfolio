@@ -1,6 +1,7 @@
 export type Profile = {
   name: string;
   headline: string;
+  bio: string;
   gpa: string;
   coursework: string[];
   linkedin_url: string;
@@ -23,10 +24,16 @@ export type ProjectItem = {
   tags: string[];
   description: string;
   highlights: string[];
+  github_url: string;
+};
+
+export type SkillGroup = {
+  label: string;
+  items: string[];
 };
 
 export type SkillsPayload = {
-  languages_tools: string[];
+  skill_groups: SkillGroup[];
   awards: string[];
   certifications: string[];
 };

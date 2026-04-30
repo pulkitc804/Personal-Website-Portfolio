@@ -9,15 +9,15 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: "#030712",
-        panel: "#0a0f1e",
+        void: "#0a0607",
+        panel: "#140d10",
         cyan: {
-          glow: "#22d3ee",
-          dim: "#0891b2",
+          glow: "#f87171",
+          dim: "#dc2626",
         },
         violet: {
-          glow: "#a78bfa",
-          dim: "#6d28d9",
+          glow: "#fda4af",
+          dim: "#e11d48",
         },
       },
       fontFamily: {
@@ -26,11 +26,11 @@ const config: Config = {
       },
       backgroundImage: {
         "grid-fade":
-          "linear-gradient(to bottom, rgba(2,6,23,0) 0%, rgba(3,7,18,0.85) 55%, #030712 100%), linear-gradient(rgba(34,211,238,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(167,139,250,0.05) 1px, transparent 1px)",
+          "linear-gradient(to bottom, rgba(10,6,7,0) 0%, rgba(10,6,7,0.78) 55%, #0a0607 100%), linear-gradient(rgba(248,113,113,0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(253,164,175,0.07) 1px, transparent 1px)",
       },
       boxShadow: {
-        glow: "0 0 40px rgba(34, 211, 238, 0.25), 0 0 80px rgba(167, 139, 250, 0.12)",
-        card: "0 0 0 1px rgba(148, 163, 184, 0.08), 0 24px 48px -12px rgba(0, 0, 0, 0.65)",
+        glow: "0 0 48px rgba(248, 113, 113, 0.28), 0 0 96px rgba(253, 164, 175, 0.16)",
+        card: "0 0 0 1px rgba(203, 213, 225, 0.12), 0 24px 48px -12px rgba(0, 0, 0, 0.55)",
       },
       animation: {
         "pulse-slow": "pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite",

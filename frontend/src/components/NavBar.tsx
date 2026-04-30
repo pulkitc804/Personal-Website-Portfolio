@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 
 const links = [
-  { href: "#hero", label: "Overview" },
+  { href: "#hero", label: "About" },
   { href: "#experience", label: "Experience" },
   { href: "#projects", label: "Projects" },
   { href: "#skills", label: "Skills" },
@@ -15,7 +15,7 @@ export function NavBar() {
   const headerBg = useTransform(
     scrollY,
     [0, 100],
-    ["rgba(3, 7, 18, 0.35)", "rgba(3, 7, 18, 0.88)"],
+    ["rgba(7, 16, 24, 0.42)", "rgba(7, 16, 24, 0.9)"],
   );
 
   return (
