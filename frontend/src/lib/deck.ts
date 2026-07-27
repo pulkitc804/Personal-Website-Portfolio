@@ -45,7 +45,7 @@ export const PLAYER_CARD: CardSpec = {
   ],
   back: {
     lines: [
-      "Studying Data Science, Computer Science, Math & Statistics at Rutgers (3.81 GPA).",
+      "Studying Data Science, Computer Science, Math & Statistics at Rutgers (3.85 GPA).",
       "Shipping an agentic web pipeline at Blaze (YC S24), researching spatial-navigation networks at WINLAB, and modeling stochastic volatility on the side.",
       "Coursework: " + PROFILE.coursework.join(", ") + ".",
       "Off the keyboard: at the kitchen line.",

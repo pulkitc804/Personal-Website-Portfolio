@@ -10,7 +10,7 @@ import { pop, resume } from "@/lib/sound";
 /* Data (real projects, seeded by complexity)                          */
 /* ------------------------------------------------------------------ */
 
-type ProjectId = "ai-sde" | "guardian" | "solar" | "maze";
+type ProjectId = "ai-sde" | "guardian" | "solar" | "scarlet" | "maze";
 
 type Metric = { label: string; value: string };
 
@@ -30,6 +30,32 @@ type Project = {
 };
 
 const PROJECTS: Record<ProjectId, Project> = {
+  scarlet: {
+    id: "scarlet",
+    seed: 4,
+    standing: "Play-in winner",
+    title: "ScarletAI",
+    period: "2026 to Present",
+    pitch:
+      "A grounded AI assistant for Rutgers: retrieval-augmented over official campus sources, so it answers from the corpus instead of guessing.",
+    description:
+      "A TypeScript monorepo that answers questions about Rutgers New Brunswick without hallucinating. Retrieval-augmented generation runs over a corpus of official Rutgers pages covering majors, academics, dining, buses and campus services, alongside a Schedule of Classes planner backed by live data. A multi-provider LLM layer (Gemini, Groq, Ollama, Anthropic) fails over between models, and one shared agent runtime drives the web chat app, a browser extension, and a React Native client.",
+    arch: [
+      "Official Rutgers page corpus",
+      "Embeddings + vector search",
+      "Multi-provider LLM layer, with fallback",
+      "Shared agent runtime",
+      "Next.js chat + SOC planner",
+    ],
+    metrics: [
+      { label: "Grounding", value: "answers retrieved from the corpus" },
+      { label: "Providers", value: "Gemini, Groq, Ollama, Anthropic" },
+      { label: "Clients", value: "web, extension, mobile" },
+    ],
+    tags: ["TypeScript", "Next.js", "RAG", "Vector search", "Turborepo"],
+    github: "https://github.com/pulkitc804/Rutgers-GPT",
+    rowMetric: "RAG over official Rutgers pages",
+  },
   "ai-sde": {
     id: "ai-sde",
     seed: 1,
@@ -109,8 +135,8 @@ const PROJECTS: Record<ProjectId, Project> = {
   },
   maze: {
     id: "maze",
-    seed: 4,
-    standing: "Semifinalist",
+    seed: 5,
+    standing: "Play-in",
     title: "Maze Policy Network",
     period: "WINLAB research, 2026",
     pitch:
@@ -143,11 +169,18 @@ type Match = {
   winner: ProjectId;
 };
 
+const PLAY_IN: Match = {
+  id: "playin",
+  round: "Play-in",
+  a: "scarlet",
+  b: "maze",
+  winner: "scarlet",
+};
 const SEMI_1: Match = {
   id: "sf1",
   round: "Semifinal 1",
   a: "ai-sde",
-  b: "maze",
+  b: "scarlet",
   winner: "ai-sde",
 };
 const SEMI_2: Match = {
@@ -173,6 +206,9 @@ const TITLE_ID = "film-room-title";
 const ELBOW_TOP = "M0 88H14Q22 88 22 96V192Q22 200 30 200";
 const ELBOW_BOTTOM = "M0 312H14Q22 312 22 304V208Q22 200 30 200";
 const ELBOW_STUB = "M30 200H48";
+/* Play-in sits level with Semifinal 1 (both midpoints y=88), so its feed is a
+   straight run rather than an elbow. */
+const PLAYIN_STUB = "M0 88H40";
 const FINAL_STUB = "M0 200H48";
 
 function r2(n: number): number {
@@ -528,7 +564,20 @@ export default function TournamentBracket() {
 
         {/* -------- lg+: three-column bracket with SVG connectors -------- */}
         <Reveal className="hidden lg:block">
-          <div className="grid grid-cols-[minmax(0,1fr)_3rem_minmax(0,1fr)_3rem_minmax(0,1.2fr)] items-center">
+          <div className="grid grid-cols-[minmax(0,0.85fr)_2.5rem_minmax(0,1fr)_3rem_minmax(0,1fr)_3rem_minmax(0,1.15fr)] items-center">
+            {/* play-in feeds the top semifinal */}
+            <div className="flex h-[400px] flex-col justify-start">
+              <MatchCard match={PLAY_IN} onOpen={openFilmRoom} className="h-44" />
+            </div>
+
+            <svg
+              viewBox="0 0 40 400"
+              className="h-[400px] w-10 text-chalk/25"
+              aria-hidden
+            >
+              <path d={PLAYIN_STUB} fill="none" stroke="currentColor" strokeWidth="1" />
+            </svg>
+
             <div className="flex h-[400px] flex-col justify-between">
               <MatchCard match={SEMI_1} onOpen={openFilmRoom} className="h-44" />
               <MatchCard match={SEMI_2} onOpen={openFilmRoom} className="h-44" />
@@ -565,6 +614,14 @@ export default function TournamentBracket() {
         {/* -------- <lg: stacked list grouped by round -------- */}
         <div className="space-y-10 lg:hidden">
           <Reveal>
+            <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-chalk/45">
+              Play-in
+            </h3>
+            <div className="mt-3">
+              <MatchCard match={PLAY_IN} onOpen={openFilmRoom} />
+            </div>
+          </Reveal>
+          <Reveal delay={40}>
             <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-chalk/45">
               Semifinals
             </h3>
