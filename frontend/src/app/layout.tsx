@@ -1,41 +1,38 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Archivo } from "next/font/google";
 import "./globals.css";
+import PickleCursor from "@/components/PickleCursor";
+import IntroServe from "@/components/IntroServe";
+import SmoothScroll from "@/components/SmoothScroll";
 
-const space = Space_Grotesk({
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-geist-sans",
-  display: "swap",
-});
-
-const mono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
+  weight: ["400", "500", "600", "700", "800"],
+  variable: "--font-archivo",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Pulkit Chaudhary — Quant × Data Science",
+  title: "Pulkit Chaudhary — Data Science, quant & ML",
   description:
-    "Portfolio of Pulkit Chaudhary: data science, quantitative finance, ML systems, and high-throughput engineering at Rutgers.",
+    "Pulkit Chaudhary: Rutgers Data Science, CS, Math & Statistics. Quant research, ML systems, high-throughput analytics. Court side.",
   openGraph: {
     title: "Pulkit Chaudhary",
     description:
-      "Quantitative researcher profile — Rutgers Data Science, CS, Math & Stats.",
+      "Rutgers Data Science, CS, Math & Statistics — quant research, ML systems, high-throughput analytics.",
     type: "website",
   },
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
-      <body
-        className={`${space.variable} ${mono.variable} font-sans min-h-screen`}
-      >
+    <html lang="en">
+      <body className={`${archivo.variable} min-h-screen`}>
+        <SmoothScroll />
+        <PickleCursor />
+        <IntroServe />
         {children}
       </body>
     </html>

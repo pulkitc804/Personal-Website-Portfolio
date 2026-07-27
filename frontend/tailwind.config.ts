@@ -9,38 +9,38 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        void: "#0a0607",
-        panel: "#140d10",
-        cyan: {
-          glow: "#f87171",
-          dim: "#dc2626",
-        },
-        violet: {
-          glow: "#fda4af",
-          dim: "#e11d48",
-        },
+        // Two-tone tournament court. See DESIGN.md.
+        court: "#0e4f4c",
+        "court-deep": "#07211f",
+        clay: "#cc5b38",
+        chalk: "#f2eee2",
+        "chalk-dim": "#e4ddca",
+        ink: "#10211f",
+        "ink-soft": "#37524e",
+        ball: "#c8f135",
       },
       fontFamily: {
-        sans: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-geist-mono)", "ui-monospace", "monospace"],
+        display: ["var(--font-archivo)", "system-ui", "sans-serif"],
+        sans: ["var(--font-archivo)", "system-ui", "sans-serif"],
       },
-      backgroundImage: {
-        "grid-fade":
-          "linear-gradient(to bottom, rgba(10,6,7,0) 0%, rgba(10,6,7,0.78) 55%, #0a0607 100%), linear-gradient(rgba(248,113,113,0.09) 1px, transparent 1px), linear-gradient(90deg, rgba(253,164,175,0.07) 1px, transparent 1px)",
-      },
-      boxShadow: {
-        glow: "0 0 48px rgba(248, 113, 113, 0.28), 0 0 96px rgba(253, 164, 175, 0.16)",
-        card: "0 0 0 1px rgba(203, 213, 225, 0.12), 0 24px 48px -12px rgba(0, 0, 0, 0.55)",
-      },
-      animation: {
-        "pulse-slow": "pulse 5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        scan: "scan 8s linear infinite",
+      letterSpacing: {
+        tightest: "-0.04em",
       },
       keyframes: {
-        scan: {
-          "0%": { transform: "translateY(-100%)" },
-          "100%": { transform: "translateY(100%)" },
+        "serve-arc": {
+          "0%": { transform: "translate(-44%, 18%) scale(0.7)", opacity: "0" },
+          "30%": { opacity: "1" },
+          "55%": { transform: "translate(0, -32%) scale(1.05)" },
+          "100%": { transform: "translate(0,0) scale(1)" },
         },
+        "ball-idle": {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
+      },
+      animation: {
+        "serve-arc": "serve-arc 1.4s cubic-bezier(0.22,1,0.36,1) both",
+        "ball-idle": "ball-idle 3.2s ease-in-out infinite",
       },
     },
   },

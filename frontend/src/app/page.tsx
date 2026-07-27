@@ -1,40 +1,54 @@
-import { ExperienceSection } from "@/components/ExperienceSection";
-import { Footer } from "@/components/Footer";
-import { Hero } from "@/components/Hero";
-import { NavBar } from "@/components/NavBar";
-import { ProjectsSection } from "@/components/ProjectsSection";
-import { SkillsSection } from "@/components/SkillsSection";
-import { loadPortfolioData } from "@/lib/fetch-portfolio";
+import NavBar from "@/components/NavBar";
+import SideRail from "@/components/SideRail";
+import Hero from "@/components/Hero";
+import AboutSection from "@/components/AboutSection";
+import RallyTimeline from "@/components/RallyTimeline";
+import SkillRally from "@/components/SkillRally";
+import TournamentBracket from "@/components/TournamentBracket";
+import LiveLab from "@/components/LiveLab";
+import CourtAnalytics from "@/components/CourtAnalytics";
+import TrophyCase from "@/components/TrophyCase";
+import ServeTerminal from "@/components/ServeTerminal";
+import Footer from "@/components/Footer";
+import ScrollBall from "@/components/ScrollBall";
+import { loadPortfolioData } from "@/lib/portfolio-data";
+import { EXPERIENCE_CARDS } from "@/lib/deck";
 
-export default async function Home() {
-  const { profile, experience, projects, skills } = await loadPortfolioData();
+export default function Home() {
+  const { profile, skills } = loadPortfolioData();
 
   return (
-    <div className="relative overflow-x-clip">
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 grid-bg bg-grid-fade opacity-100"
-        aria-hidden
-      />
-      <div
-        className="bg-aurora pointer-events-none fixed inset-0 -z-10"
-        aria-hidden
-      />
-      <div
-        className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_85%_55%_at_50%_-15%,rgba(248,113,113,0.24),transparent_55%),radial-gradient(ellipse_55%_45%_at_85%_15%,rgba(253,164,175,0.18),transparent_50%),radial-gradient(ellipse_50%_40%_at_10%_60%,rgba(251,146,60,0.08),transparent_55%)]"
-        aria-hidden
-      />
-      <div
-        className="noise-overlay pointer-events-none fixed inset-0 -z-10 opacity-[0.035]"
-        aria-hidden
-      />
+    <>
       <NavBar />
+      <SideRail />
+      <ScrollBall />
       <main>
         <Hero profile={profile} />
-        <ExperienceSection items={experience} />
-        <ProjectsSection items={projects} />
-        <SkillsSection data={skills} />
+        <AboutSection profile={profile} />
+        <RallyTimeline
+          id="experience"
+          title="The Season"
+          caption="The roles I'm playing now, in order of the clock. Follow the ball."
+          index="02"
+          meta="current season"
+          stations={EXPERIENCE_CARDS}
+        />
+        <SkillRally />
+        <TournamentBracket />
+        <LiveLab />
+        <CourtAnalytics />
+        <TrophyCase
+          awards={skills.awards}
+          coursework={profile.coursework}
+          gpa={profile.gpa}
+        />
+        <ServeTerminal
+          email={profile.email}
+          linkedinUrl={profile.linkedin_url}
+          githubUrl={profile.github_url}
+        />
       </main>
       <Footer profile={profile} />
-    </div>
+    </>
   );
 }

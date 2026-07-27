@@ -3,6 +3,8 @@ export type Profile = {
   headline: string;
   bio: string;
   gpa: string;
+  location: string;
+  email: string;
   coursework: string[];
   linkedin_url: string;
   github_url: string;
@@ -13,6 +15,8 @@ export type ExperienceItem = {
   title: string;
   org: string;
   period: string;
+  location?: string;
+  link?: string;
   bullets: string[];
   metrics: string[];
 };
@@ -21,6 +25,7 @@ export type ProjectItem = {
   id: string;
   title: string;
   subtitle: string;
+  period?: string;
   tags: string[];
   description: string;
   highlights: string[];

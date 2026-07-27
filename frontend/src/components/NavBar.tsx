@@ -1,54 +1,43 @@
 "use client";
 
-import { motion, useScroll, useTransform } from "framer-motion";
-import Link from "next/link";
+import { useEffect, useState } from "react";
+import SoundToggle from "./SoundToggle";
+import Magnetic from "./Magnetic";
 
-const links = [
-  { href: "#hero", label: "About" },
-  { href: "#experience", label: "Experience" },
-  { href: "#projects", label: "Projects" },
-  { href: "#skills", label: "Skills" },
-];
+export default function NavBar() {
+  const [scrolled, setScrolled] = useState(false);
 
-export function NavBar() {
-  const { scrollY } = useScroll();
-  const headerBg = useTransform(
-    scrollY,
-    [0, 100],
-    ["rgba(7, 16, 24, 0.42)", "rgba(7, 16, 24, 0.9)"],
-  );
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <motion.header
-      style={{ backgroundColor: headerBg }}
-      className="fixed inset-x-0 top-0 z-50 border-b border-white/[0.08] backdrop-blur-xl"
+    <header
+      className={`fixed inset-x-0 top-0 z-40 transition-colors duration-300 ${
+        scrolled ? "bg-court-deep" : "bg-transparent"
+      }`}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <Link
-          href="#hero"
-          className="font-mono text-xs tracking-[0.2em] text-slate-400 transition-colors hover:text-cyan-glow"
-        >
-          PC<span className="text-cyan-glow">::</span>SYS
-        </Link>
-        <nav className="hidden items-center gap-6 sm:flex">
-          {links.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-sm text-slate-300 transition-colors hover:text-white"
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 text-chalk">
+        <a href="#top" className="flex items-baseline gap-2">
+          <span className="display text-lg uppercase">Pulkit Chaudhary</span>
+          <span className="h-2 w-2 rounded-full bg-ball" aria-hidden />
+        </a>
+
+        <div className="flex items-center gap-3">
+          <SoundToggle />
+          <Magnetic strength={0.4} radius={60}>
+            <a
+              href="#contact"
+              className="inline-block rounded-full border border-ball/70 px-4 py-1.5 text-sm font-semibold text-ball transition-colors hover:bg-ball hover:text-ink"
             >
-              {l.label}
-            </Link>
-          ))}
-        </nav>
-        <motion.div
-          className="font-mono text-[10px] uppercase tracking-widest text-slate-500"
-          animate={{ opacity: [0.5, 1, 0.5] }}
-          transition={{ duration: 4, repeat: Infinity }}
-        >
-          live
-        </motion.div>
-      </div>
-    </motion.header>
+              Your serve
+            </a>
+          </Magnetic>
+        </div>
+      </nav>
+    </header>
   );
 }

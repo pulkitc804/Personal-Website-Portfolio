@@ -2,111 +2,337 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  color-scheme: dark;
-}
-
-/*
-  Native document scrolling + scroll-snap: advancing the page snaps major
-  sections into place (nav offset via scroll-padding-top).
-*/
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 3.75rem;
-  scroll-snap-type: y mandatory;
+  scroll-padding-top: 4.5rem;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  @apply bg-court-deep text-chalk antialiased;
+  font-family: var(--font-archivo), system-ui, sans-serif;
 }
 
 @media (prefers-reduced-motion: reduce) {
   html {
-    scroll-snap-type: none;
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
 
-body {
-  @apply bg-void text-slate-50 antialiased;
+/* Display type: athletic, wide, tight. */
+.display {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 0.94;
+  text-wrap: balance;
 }
 
-.glass {
-  @apply border border-white/20 bg-white/10 backdrop-blur-xl;
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
-.glass-strong {
-  @apply border border-cyan-glow/30 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl;
+/* Scroll-reveal: content is visible by default, then settles. Never gates
+   visibility on JS, so it can't ship blank in a headless render. */
+.reveal {
+  opacity: 1;
 }
-
-.text-gradient {
-  @apply bg-gradient-to-r from-cyan-glow via-red-200 to-violet-glow bg-clip-text text-transparent;
-}
-
-/*
-  Hero name: gradient text. Tailwind display sizes default to line-height: 1, which
-  clips descenders with background-clip:text — pair with generous leading on h1
-  plus a little vertical padding so glyphs (y, g, p) stay fully inside the line box.
-*/
-.hero-name {
-  display: inline-block;
-  line-height: inherit;
-  padding: 0.06em 0 0.14em;
-  background-image: linear-gradient(
-    105deg,
-    #ffffff 0%,
-    #ffe4e6 14%,
-    #fda4af 34%,
-    #f87171 52%,
-    #fb7185 66%,
-    #fecdd3 86%,
-    #f8fafc 100%
-  );
-  background-size: 100% 100%;
-  background-position: 0 0;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-  box-decoration-break: clone;
-  -webkit-box-decoration-break: clone;
-  /* Slight halo so anti-aliased edges read crisp (not “faded”) */
-  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.5))
-    drop-shadow(0 0 22px rgba(248, 113, 113, 0.2));
-}
-
-.grid-bg {
-  background-size: 48px 48px, 48px 48px;
-  background-position: -1px -1px, -1px -1px;
-}
-
-.bg-aurora {
-  background: radial-gradient(
-      ellipse 120% 80% at 15% 20%,
-      rgba(248, 113, 113, 0.18),
-      transparent 55%
-    ),
-    radial-gradient(
-      ellipse 90% 70% at 90% 30%,
-      rgba(253, 164, 175, 0.16),
-      transparent 50%
-    ),
-    radial-gradient(
-      ellipse 70% 50% at 50% 100%,
-      rgba(225, 29, 72, 0.1),
-      transparent 55%
-    );
-  animation: aurora-shift 24s ease-in-out infinite alternate;
-}
-
-@keyframes aurora-shift {
-  0% {
-    filter: hue-rotate(0deg);
-    transform: scale(1) translate(0, 0);
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .reveal.in {
     opacity: 1;
-  }
-  100% {
-    filter: hue-rotate(12deg);
-    transform: scale(1.04) translate(-1%, 1%);
-    opacity: 0.92;
+    transform: none;
   }
 }
 
-.noise-overlay {
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+/* A real painted court line used as a divider. */
+.baseline {
+  height: 2px;
+  background: currentColor;
+  opacity: 0.18;
+}
+
+/* ============================================================
+   TRADING CARD SYSTEM — flip + tilt, no glow / glass / gradient sheen.
+   Two nested 3-D layers so flip (slow) and tilt (live) never fight:
+     .card-tilt  -> pointer rotateX/Y (written inline)
+     .card-inner -> rotateY(180) flip
+   IMPORTANT: never put filter/backdrop-filter on these ancestors,
+   or Safari flattens preserve-3d.
+   ============================================================ */
+.card-scene {
+  width: var(--card-w, clamp(216px, 72vw, 250px));
+  aspect-ratio: 5 / 7;
+  perspective: 1300px;
+}
+
+/* faint court-line texture for the dark "night tournament" bands */
+.court-lines {
+  position: relative;
+}
+.court-lines::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(242, 238, 226, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(242, 238, 226, 0.04) 1px, transparent 1px);
+  background-size: 64px 64px;
+  -webkit-mask-image: radial-gradient(ellipse 75% 60% at 50% 40%, #000 25%, transparent 78%);
+  mask-image: radial-gradient(ellipse 75% 60% at 50% 40%, #000 25%, transparent 78%);
+}
+
+/* a "net" divider between bands */
+.net-divider {
+  height: 2px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    rgba(242, 238, 226, 0.28) 0 7px,
+    transparent 7px 15px
+  );
+}
+.card-tilt {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+.card-inner {
+  position: relative;
+  height: 100%;
+  width: 100%;
+  transform-style: preserve-3d;
+  transition: transform 0.55s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.card-inner.is-flipped {
+  transform: rotateY(180deg);
+}
+.card-face {
+  position: absolute;
+  inset: 0;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.card-back {
+  transform: rotateY(180deg);
+}
+
+/* Front content is normal semantic markup (exposed to AT); the flip control
+   is a transparent button overlaid on top so the heading/stats stay readable
+   by screen readers (a <button> may not wrap headings/lists). */
+.card-flip-btn {
+  all: unset;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+  cursor: pointer;
+}
+.card-flip-btn:focus-visible {
+  outline: 3px solid #c8f135;
+  outline-offset: -3px;
+  border-radius: 16px;
+}
+
+/* Explicit reduced-motion contract for the card system (robust even if the
+   global override is ever refactored away). */
+@media (prefers-reduced-motion: reduce) {
+  .card-inner,
+  .card-tilt {
+    transition: none !important;
+  }
+}
+
+/* rarity frames — carried by border + badge only (no sheen) */
+.frame {
+  border: 1.5px solid rgba(242, 238, 226, 0.22);
+  /* court -> court-deep (DESIGN.md tokens) */
+  background: linear-gradient(180deg, #0e4f4c 0%, #07211f 100%);
+}
+.frame-holo {
+  border: 2px solid #c8f135;
+  box-shadow: inset 0 0 0 4px rgba(8, 53, 56, 0.9),
+    inset 0 0 0 5px rgba(200, 241, 53, 0.28);
+}
+.frame-rare {
+  border: 2px solid rgba(242, 238, 226, 0.55);
+  box-shadow: inset 0 0 0 4px rgba(8, 53, 56, 0.9);
+}
+.frame-uncommon {
+  border: 1.5px solid rgba(194, 85, 58, 0.7);
+}
+
+.card-chip {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(242, 238, 226, 0.2);
+  padding: 2px 9px;
+  font-size: 11px;
+  line-height: 1.4;
+  color: rgba(242, 238, 226, 0.85);
+}
+
+/* press feedback on small controls */
+.pressable:active {
+  transform: scale(0.97);
+}
+
+/* ---- acrylic-court grain: a faint tooth over flat surfaces so nothing
+   reads as flat-AI-dark. Felt, not seen (very low opacity, soft-light). ---- */
+.grain-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* a soft overhead court light for depth (a lighting wash, not a glow halo) */
+.court-light {
+  background:
+    radial-gradient(120% 90% at 50% -10%, rgba(200, 241, 53, 0.07), transparent 45%),
+    radial-gradient(90% 70% at 50% 8%, rgba(255, 255, 255, 0.05), transparent 55%);
+}
+
+/* night-tournament lighting: twin floodlight pools from above, a faint cool
+   fill, and a real vignette so the frame has photographic depth, not flatness */
+.court-night {
+  background:
+    radial-gradient(46% 40% at 28% -8%, rgba(216, 240, 196, 0.1), transparent 62%),
+    radial-gradient(46% 40% at 72% -8%, rgba(216, 240, 196, 0.1), transparent 62%),
+    radial-gradient(100% 76% at 50% 2%, rgba(255, 255, 255, 0.045), transparent 58%),
+    radial-gradient(130% 105% at 50% 46%, transparent 52%, rgba(1, 8, 7, 0.6) 100%);
+}
+
+/* hairline chalk rule used to align/structure the hero */
+.hairline {
+  height: 1px;
+  background: rgba(242, 238, 226, 0.16);
+}
+
+/* magnetic skill chips — brightness driven by the cursor field (--lit 0..1) */
+.skill-chip {
+  --lit: 0;
+  will-change: transform;
+  border: 1px solid rgba(242, 238, 226, calc(0.12 + var(--lit) * 0.55));
+  background: rgba(255, 255, 255, calc(0.04 + var(--lit) * 0.1));
+  color: rgba(242, 238, 226, calc(0.72 + var(--lit) * 0.28));
+  transition: transform 0.16s ease-out, border-color 0.18s ease,
+    background-color 0.18s ease, color 0.18s ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .skill-chip {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+/* horizontal shelf: hide the scrollbar, the rail underneath reports position */
+.no-bar::-webkit-scrollbar {
+  display: none;
+}
+
+/* section masthead: the rule draws itself, the numeral is outline only */
+.section-head .head-rule {
+  transform: scaleX(0);
+  transition: transform 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.section-head[data-drawn="true"] .head-rule {
+  transform: scaleX(1);
+}
+.section-head .head-numeral {
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(242, 238, 226, 0.16);
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 700ms ease-out 180ms, transform 700ms cubic-bezier(0.22, 1, 0.36, 1) 180ms;
+}
+.section-head[data-drawn="true"] .head-numeral {
+  opacity: 1;
+  transform: translateY(0);
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-head .head-rule,
+  .section-head .head-numeral {
+    transition: none;
+  }
+}
+
+/* the paddle's honeycomb core ("In the Bag") — cells light under the sweet spot */
+.paddle-cell {
+  --lit: 0;
+  will-change: transform;
+  transition: transform 0.16s ease-out;
+}
+.paddle-hex {
+  stroke: rgba(242, 238, 226, calc(0.16 + var(--lit) * 0.7));
+  stroke-width: calc(1px + var(--lit) * 1.2px);
+  transition: stroke 0.18s ease;
+}
+.paddle-cell .paddle-label {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  fill: rgba(242, 238, 226, calc(0.68 + var(--lit) * 0.32));
+  transition: fill 0.18s ease;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .paddle-cell {
+    transition: none;
+    transform: none !important;
+  }
+}
+
+/* custom pickleball cursor (added by JS only on fine-pointer, motion-OK) */
+.pickle-cursor,
+.pickle-cursor * {
+  cursor: none !important;
+}
+.cursor-ball {
+  transition: scale 0.12s ease;
+}
+.cursor-ball.down {
+  scale: 0.7;
+}
+
+::selection {
+  background: var(--sel, #c8f135);
+  color: #10211f;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+}
+::-webkit-scrollbar-track {
+  background: #07211f;
+}
+::-webkit-scrollbar-thumb {
+  background: #0e4f4c;
+  border: 3px solid #07211f;
+  border-radius: 999px;
 }
