@@ -9,20 +9,30 @@ import { pop, resume } from "@/lib/sound";
  *
  *     d2y/dt2 = c^2 * d2y/dx2
  *
- * on a fixed-end string by finite differences, so the motion is real physics:
- * a pluck launches two pulses that travel out, reflect off the posts, pass
- * through each other, and settle into modes. A soft driver near the left post
- * keeps it alive at rest. The cursor presses the string like a finger, a click
- * plucks it, and scrolling pulls it taut into the ribbon's rule.
+ * on a fixed-end string by finite differences, so what you put into the cord
+ * behaves properly: a pluck launches two pulses that travel out, reflect off
+ * the posts, and die away. The cursor presses it like a finger, a click plucks
+ * it, and scrolling pulls it taut into the ribbon's rule.
  *
- * Stability: the Courant number C = c*dt/dx must satisfy C <= 1. C2 below is
- * C^2 = 0.28, comfortably inside the limit, with light damping for a cord
- * rather than a guitar string.
+ * The resting motion is deliberately NOT simulated. Driving the string every
+ * frame made reflections pile up and the line read as noise; the idle swell is
+ * analytic (see idleY) so it stays calm no matter how long the page sits open,
+ * and the simulation only ever carries what a visitor adds, then decays to nil.
+ *
+ * Stability: the Courant number C = c*dt/dx must satisfy C <= 1. C^2 = 0.28
+ * here, comfortably inside the limit.
  */
 const OPTIC = "#c8f135";
 const N = 240; // nodes along the cord
 const C2 = 0.28; // Courant^2, stability requires <= 1
-const DAMP = 0.9985; // light loss, so a pluck rings then settles
+/**
+ * Damping is the difference between a cord and a mess. At 0.9985 the string
+ * kept roughly 84% of its energy each second, so reflections off the two
+ * fixed ends piled up faster than they died and the line turned to noise.
+ * At 0.9905 a pluck falls to about a third within a second and is gone
+ * within three, which is what a real net cord does.
+ */
+const DAMP = 0.9905;
 
 export default function HeroString({ className = "" }: { className?: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -79,6 +89,22 @@ export default function HeroString({ className = "" }: { className?: string }) {
     const xOf = (i: number) => (i / (N - 1)) * W;
     const iOf = (px: number) => Math.round((px / Math.max(W, 1)) * (N - 1));
 
+    /**
+     * The resting shape: one slow, shallow travelling swell, tapered to zero
+     * at the posts so it meets the fixed ends cleanly. This is what the cord
+     * looks like when nobody is touching it, and being analytic it can never
+     * build up the way the simulation could.
+     */
+    function idleY(px: number) {
+      const f = px / Math.max(W, 1);
+      const taper = Math.sin(Math.PI * f); // 0 at both posts, 1 at centre
+      return (
+        taper *
+        (Math.sin(f * Math.PI * 2 * 1.6 - s.t * 0.011) * 9 +
+          Math.sin(f * Math.PI * 2 * 2.7 - s.t * 0.007) * 3)
+      );
+    }
+
     /** integrate one step of the wave equation, ends pinned to the posts */
     function step() {
       for (let i = 1; i < N - 1; i++) {
@@ -88,9 +114,9 @@ export default function HeroString({ className = "" }: { className?: string }) {
       yNext[0] = 0;
       yNext[N - 1] = 0;
 
-      // a soft driver near the near post keeps the cord alive at rest
-      const drive = Math.sin(s.t * 0.055) * 2.6 + Math.sin(s.t * 0.021) * 1.4;
-      yNext[3] += (drive - yNext[3]) * 0.06;
+      // No driver. The simulation carries only what you put into it, and
+      // decays back to nothing; the calm idle motion is the analytic swell
+      // in idleY(), which cannot accumulate.
 
       // the cursor presses the cord like a finger holding a string
       if (s.on && s.pressing) {
@@ -141,7 +167,7 @@ export default function HeroString({ className = "" }: { className?: string }) {
       if (x < 0 || x > W || yy < 0 || yy > H) return;
       resume();
       pop(0.5);
-      pluck(x, Math.abs(yy - baseY()) < 120 ? 30 : 18);
+      pluck(x, Math.abs(yy - baseY()) < 120 ? 20 : 11);
     };
     window.addEventListener("pointermove", onMove, { passive: true });
     canvas.addEventListener("pointerdown", onDown);
@@ -152,7 +178,8 @@ export default function HeroString({ className = "" }: { className?: string }) {
       const f = (px / Math.max(W, 1)) * (N - 1);
       const i = Math.max(0, Math.min(N - 2, Math.floor(f)));
       const t = f - i;
-      return baseY() + (y[i] + (y[i + 1] - y[i]) * t) * amp();
+      const sim = y[i] + (y[i + 1] - y[i]) * t;
+      return baseY() + (idleY(px) + sim) * amp();
     }
 
     function drawBall(bx: number, by: number) {
@@ -193,7 +220,7 @@ export default function HeroString({ className = "" }: { className?: string }) {
       ctx!.beginPath();
       for (let i = 0; i < N; i++) {
         const px = xOf(i);
-        const py = b + y[i] * A;
+        const py = b + (idleY(px) + y[i]) * A;
         i === 0 ? ctx!.moveTo(px, py) : ctx!.lineTo(px, py);
       }
       ctx!.stroke();
@@ -219,10 +246,7 @@ export default function HeroString({ className = "" }: { className?: string }) {
       if (visible && !document.hidden) {
         const sy = window.scrollY;
         s.p = Math.max(0, Math.min(1, sy / (H * 0.85 || 1)));
-        // a fast flick shakes the cord, the way a real one would
-        const dv = sy - lastScroll;
         lastScroll = sy;
-        if (Math.abs(dv) > 26) pluck(W * (0.3 + 0.4 * ((s.t % 97) / 97)), Math.min(9, Math.abs(dv) * 0.16));
 
         step();
         step(); // two substeps: smoother travel at 60fps
