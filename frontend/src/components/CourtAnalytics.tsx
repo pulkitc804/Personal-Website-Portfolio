@@ -226,7 +226,7 @@ export default function CourtAnalytics() {
       className="relative bg-court text-chalk"
       style={{ ["--sel" as string]: "#c8f135" }}
     >
-      <div className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-28">
+      <div className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-24">
         <SectionHead
           title="Court-Side Analytics"
           caption="Where the last 12 months of work actually landed, mapped onto the court. Self-tracked split, real numbers underneath."
@@ -249,7 +249,7 @@ export default function CourtAnalytics() {
             <div className="flex items-center justify-center">
               <svg
                 viewBox={`0 0 ${VB_W} ${VB_H}`}
-                className="block h-[420px] w-auto max-w-full select-none sm:h-[480px] lg:h-[520px]"
+                className="block h-[420px] w-auto max-w-full select-none sm:h-[480px] lg:h-[580px]"
                 aria-label="Top-down pickleball court shot map with three selectable zones: kitchen, transition zone and baseline"
               >
                 {/* clay out-of-bounds surround */}
@@ -348,7 +348,9 @@ export default function CourtAnalytics() {
                   </g>
                 ))}
 
-                {/* zone labels on the near half */}
+                {/* zone names only, and only the active one reads bright: the
+                    percentages live in the rings, printing them here too just
+                    stacked type over the shot dots */}
                 {ZONES.map((z) => (
                   <text
                     key={`label-${z.id}`}
@@ -358,10 +360,10 @@ export default function CourtAnalytics() {
                     fontSize={8.5}
                     letterSpacing={1.4}
                     fill={zone === z.id ? "#c8f135" : "#f2eee2"}
-                    fillOpacity={zone === z.id ? 0.95 : 0.45}
+                    fillOpacity={zone === z.id ? 0.95 : 0.28}
                     className="pointer-events-none font-mono uppercase transition-[fill-opacity] duration-200"
                   >
-                    {z.courtLabel} · {z.share}%
+                    {z.courtLabel}
                   </text>
                 ))}
 

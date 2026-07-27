@@ -78,8 +78,12 @@ export default function HeroNetCord({ className = "" }: { className?: string }) 
     type Packet = { x0: number; age: number; dir: 1 | -1 };
     const packets: Packet[] = [];
 
-    const yc = () => H * 0.76;
-    const A0 = () => Math.min(36, Math.max(22, H * 0.05));
+    // the cord rides low, in clear space between the copy and the ribbon: it
+    // must never cut through the CTAs
+    const yc = () => H * 0.775;
+    // amplitude is capped so the cord always clears the copy above it and the
+    // credibility line below it: it is a rule that breathes, not a feature
+    const A0 = () => Math.min(24, Math.max(15, H * 0.032));
     const k = () => (Math.PI * 6) / Math.max(W, 1); // exactly 3 periods
 
     const smooth = (a: number, b: number, v: number) => {

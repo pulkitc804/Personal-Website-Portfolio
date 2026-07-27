@@ -65,13 +65,32 @@ export default function Hero({ profile }: { profile: Profile }) {
             LinkedIn
           </a>
         </div>
-        <p className="mt-6 hidden font-mono text-[11px] uppercase tracking-[0.16em] text-chalk/40 sm:block">
-          the rally never stops: swell the wave, click to ring it, scroll to pull it taut
-        </p>
       </div>
 
       {/* honest scorecard ribbon */}
       <div className="relative z-10 mx-auto w-full max-w-6xl px-5 pb-8">
+        {/* credibility line: the marks of where the work actually happens.
+            Only wordmarks that invert cleanly to chalk are used here. */}
+        <div className="mb-7 flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+          <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-chalk/30">
+            Currently
+          </span>
+          {[
+            { src: "/logos/blaze.svg", alt: "Blaze (Y Combinator S24)", h: "h-3.5" },
+            { src: "/logos/rutgers.png", alt: "Rutgers University", h: "h-4" },
+          ].map((l) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={l.src}
+              src={l.src}
+              alt={l.alt}
+              className={`${l.h} w-auto opacity-55 [filter:brightness(0)_invert(1)]`}
+            />
+          ))}
+          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-chalk/50">
+            WINLAB
+          </span>
+        </div>
         <div className="hairline mb-5" data-net-rule />
         <dl className="grid grid-cols-2 gap-x-8 gap-y-4 text-center sm:grid-cols-4">
           {ribbon.map(([k, v]) => (
