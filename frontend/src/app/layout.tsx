@@ -3,7 +3,6 @@ import { Archivo } from "next/font/google";
 import "./globals.css";
 import PickleCursor from "@/components/PickleCursor";
 import IntroServe from "@/components/IntroServe";
-import SmoothScroll from "@/components/SmoothScroll";
 
 const archivo = Archivo({
   subsets: ["latin"],
@@ -30,7 +29,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${archivo.variable} min-h-screen`}>
-        <SmoothScroll />
+        {/* No smooth-scroll library. Lenis moved scrolling onto the main
+            thread with a 1.05s ease, which reads as input lag and defeats the
+            display's native refresh rate. Native scroll is compositor-driven
+            and cannot stutter from JavaScript. */}
         <PickleCursor />
         <IntroServe />
         {children}

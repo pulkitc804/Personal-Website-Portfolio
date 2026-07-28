@@ -1,5 +1,4 @@
 import type { Profile } from "@/lib/types";
-import HeroCourt from "./HeroCourt";
 import KineticName from "./KineticName";
 import Magnetic from "./Magnetic";
 
@@ -25,7 +24,9 @@ export default function Hero({ profile }: { profile: Profile }) {
       style={{ ["--sel" as string]: "#c8f135" }}
     >
       {/* the net cord — one flowing wave, surfed, swelled, rung, pulled taut */}
-      <HeroCourt className="absolute inset-0 z-0 h-full w-full" />
+      {/* Deliberately no canvas here. Seven animated heroes were rejected for
+          the same reason: perpetual motion behind the type. The section now
+          carries the lit-court background and nothing that moves. */}
 
       <div className="pointer-events-none relative z-10 mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-start px-5 pt-28 text-center sm:pt-32">
         <p className="mb-6 flex items-center justify-center gap-2.5 font-mono text-xs uppercase tracking-[0.16em] text-ball">
