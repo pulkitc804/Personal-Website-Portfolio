@@ -13,10 +13,10 @@ import type {
 export const PROFILE: Profile = {
   name: "Pulkit Chaudhary",
   headline:
-    "AI engineer at a YC startup, ML researcher at WINLAB, and quant researcher — building systems that ship.",
-  bio: `I'm a Rutgers student studying Data Science, Computer Science, Math & Statistics (3.85 GPA), and most of my time goes into shipping real systems, not coursework. At Blaze (Y Combinator S24) I help lead a small engineering team building an agentic pipeline that researches, builds, and deploys production websites end to end. At WINLAB I research how small a neural network can be and still navigate space, training convolutional policies that solve mazes one move at a time.
+    "AI engineer at a YC startup building multi-agent pipelines on MCP, ML researcher at WINLAB, and a data science lecturer at Rutgers.",
+  bio: `I'm a Rutgers student studying Data Science, Computer Science, Math & Statistics (3.85 GPA), and most of my time goes into shipping real systems, not coursework. At Blaze (Y Combinator S24) I help lead a small engineering team building an agentic pipeline that researches, builds and deploys production websites end to end, designed around LLM tool-use and MCP. I also build ScarletAI, a retrieval-augmented assistant for Rutgers that answers from a corpus of official pages rather than guessing.
 
-On the quant side I work on stochastic-volatility modeling and calibration; on the side I build things at hackathons and for the Rutgers Solar Car team. The through-line is the same everywhere: careful modeling, honest benchmarks, and tools that hold up when other people depend on them. Off the keyboard, you'll find me at the kitchen line.`,
+At WINLAB I research how small a neural network can be and still navigate space, training convolutional policies that solve mazes one move at a time. I teach data science at Rutgers, and I keep a hand in quantitative research on stochastic volatility. The through-line is the same everywhere: careful modeling, honest benchmarks, and tools that hold up when other people depend on them. Off the keyboard, you'll find me at the kitchen line.`,
   gpa: "3.85 / 4.0",
   location: "New Brunswick, NJ",
   email: "pulkitc804@gmail.com",
@@ -67,6 +67,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     org: "Rutgers University — Data 101",
     period: "Present",
     location: "New Brunswick, NJ",
+    link: "https://www.cs.rutgers.edu",
     bullets: [
       "Facilitate weekly R recitations and statistical-analysis sessions for 40+ undergraduates, and collaborate on course design.",
       "Grade 250+ assignments and quizzes each month with a 100% on-time turnaround.",

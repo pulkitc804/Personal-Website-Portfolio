@@ -10,6 +10,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { pop, resume } from "@/lib/sound";
+import CourtDiagram from "./CourtDiagram";
 import Reveal from "./Reveal";
 
 type Props = {
@@ -178,6 +179,9 @@ export default function ServeTerminal({ email, linkedinUrl, githubUrl }: Props) 
       className="relative bg-court-deep text-chalk"
       style={{ ["--sel" as string]: "#c8f135" }}
     >
+      <div className="diagram-mask" aria-hidden>
+        <CourtDiagram crop="service" className="absolute -right-[6%] top-0 h-full w-auto min-w-[55%]" />
+      </div>
       {/* The baseline: one chalk boundary line with a center-service tick,
           painted across the section so the terminal sits on it. */}
       <div

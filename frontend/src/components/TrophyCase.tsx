@@ -97,7 +97,7 @@ export default function TrophyCase({
   return (
     <section
       id="trophies"
-      className="court-lines relative overflow-hidden bg-court-deep text-chalk"
+      className="sheen relative overflow-hidden bg-court-deep text-chalk"
       style={{ ["--sel" as string]: "#c8f135" }}
     >
       {/* masthead stays on the inset grid */}
@@ -105,7 +105,7 @@ export default function TrophyCase({
         <SectionHead
           title="Trophy Case"
           caption="Hardware and the coursework behind it. Push the shelf."
-          index="07"
+          index="05"
           meta="hardware"
           dark
         />

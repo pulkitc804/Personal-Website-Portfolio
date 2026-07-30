@@ -35,6 +35,23 @@ type Tech = {
 
 const TECHS: Tech[] = [
   {
+    id: "claude-mcp",
+    chip: "Claude Code / MCP",
+    short: "claude/mcp",
+    lines: [
+      {
+        tag: "agents",
+        text: "three-stage multi-agent system: Research, Implementation, Review",
+      },
+      {
+        tag: "stack",
+        text: "LLM tool use + MCP + Azure AI Foundry, orchestrated with Claude Code",
+      },
+      { tag: "output", text: "ships real client sites autonomously" },
+    ],
+    mastery: "production",
+  },
+  {
     id: "python",
     chip: "Python",
     short: "python",
@@ -67,40 +84,6 @@ const TECHS: Tech[] = [
       { tag: "ai-sde", text: "volatility model outperforms GBM baselines" },
     ],
     mastery: "research",
-  },
-  {
-    id: "claude-mcp",
-    chip: "Claude Code / MCP",
-    short: "claude/mcp",
-    lines: [
-      {
-        tag: "agents",
-        text: "three-stage multi-agent system: Research, Implementation, Review",
-      },
-      {
-        tag: "stack",
-        text: "LLM tool use + MCP + Azure AI Foundry, orchestrated with Claude Code",
-      },
-      { tag: "output", text: "ships real client sites autonomously" },
-    ],
-    mastery: "production",
-  },
-  {
-    id: "swift-coreml",
-    chip: "Swift + CoreML",
-    short: "swift",
-    lines: [
-      { tag: "guardian", text: "SOS app built at HackPrinceton" },
-      {
-        tag: "coreml",
-        text: "motion classifier cut false-positive fall detections 45%",
-      },
-      {
-        tag: "voice",
-        text: "ElevenLabs voice-first emergency pipeline on Swift/iOS + Firebase",
-      },
-    ],
-    mastery: "prototype",
   },
   {
     id: "pandas-sql",
@@ -137,6 +120,23 @@ const TECHS: Tech[] = [
       { tag: "s3", text: "AWS S3, pipeline artifact store" },
     ],
     mastery: "production",
+  },
+  {
+    id: "swift-coreml",
+    chip: "Swift + CoreML",
+    short: "swift",
+    lines: [
+      { tag: "guardian", text: "SOS app built at HackPrinceton" },
+      {
+        tag: "coreml",
+        text: "motion classifier cut false-positive fall detections 45%",
+      },
+      {
+        tag: "voice",
+        text: "ElevenLabs voice-first emergency pipeline on Swift/iOS + Firebase",
+      },
+    ],
+    mastery: "prototype",
   },
   {
     id: "r",
@@ -661,14 +661,14 @@ export default function SkillRally() {
     <section
       ref={sectionRef}
       id="skills"
-      className="relative bg-court text-chalk"
+      className="sheen relative bg-court text-chalk"
       style={{ ["--sel" as string]: "#c8f135" }}
     >
       <div className="mx-auto max-w-[1560px] px-5 py-20 lg:px-14 lg:py-24">
         <SectionHead
           title="Skill Rally"
           caption="Strike a ball to pull the production log behind it."
-          index="03"
+          index="02"
           meta="the bag"
           dark
         />

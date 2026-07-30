@@ -113,7 +113,7 @@ export default function RallyTimeline({
   return (
     <section
       id={id}
-      className="court-lines relative bg-court-deep text-chalk"
+      className="sheen relative bg-court-deep text-chalk"
       style={{ ["--sel" as string]: "#c8f135" }}
     >
       <div className="mx-auto max-w-6xl px-5 py-20 lg:py-24">

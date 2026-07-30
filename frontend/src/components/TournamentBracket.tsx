@@ -5,6 +5,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import SectionHead from "./SectionHead";
 import Reveal from "./Reveal";
 import { pop, resume } from "@/lib/sound";
+import CourtDiagram from "./CourtDiagram";
 
 /* ------------------------------------------------------------------ */
 /* Data (real projects, seeded by complexity)                          */
@@ -19,6 +20,8 @@ type Project = {
   seed: number;
   standing: string;
   title: string;
+  /** compact name for the bracket rows, where the column is narrow */
+  short: string;
   period: string;
   pitch: string;
   description: string;
@@ -35,6 +38,7 @@ const PROJECTS: Record<ProjectId, Project> = {
     seed: 4,
     standing: "Play-in winner",
     title: "ScarletAI",
+    short: "ScarletAI",
     period: "2026 to Present",
     pitch:
       "A grounded AI assistant for Rutgers: retrieval-augmented over official campus sources, so it answers from the corpus instead of guessing.",
@@ -61,6 +65,7 @@ const PROJECTS: Record<ProjectId, Project> = {
     seed: 1,
     standing: "Champion",
     title: "AI-SDE Portfolio Optimization Engine",
+    short: "AI-SDE Engine",
     period: "May 2025 to Jan 2026",
     pitch:
       "Stochastic differential equations fused with deep learning to forecast volatility, simulated at 2,000+ price paths per second.",
@@ -87,6 +92,7 @@ const PROJECTS: Record<ProjectId, Project> = {
     seed: 2,
     standing: "Finalist",
     title: "Guardian (SOS App)",
+    short: "Guardian",
     period: "HackPrinceton, Apr 2026",
     pitch:
       "CoreML and K2 Think reasoning over motion data for a voice-first fall SOS.",
@@ -113,6 +119,7 @@ const PROJECTS: Record<ProjectId, Project> = {
     seed: 3,
     standing: "Semifinalist",
     title: "Solar Car Telemetry Dashboard",
+    short: "Solar Telemetry",
     period: "Sep 2025 to Present",
     pitch:
       "A race console ingesting 10,000+ sensor records per second across 38 metrics.",
@@ -138,6 +145,7 @@ const PROJECTS: Record<ProjectId, Project> = {
     seed: 5,
     standing: "Play-in",
     title: "Maze Policy Network",
+    short: "Maze Policy",
     period: "WINLAB research, 2026",
     pitch:
       "A convolutional policy network that solves procedurally generated mazes move by move.",
@@ -199,6 +207,86 @@ const FINAL: Match = {
 };
 
 const TITLE_ID = "film-room-title";
+
+/** Display order: agents and retrieval first, since that is the current work. */
+const ORDER: ProjectId[] = ["scarlet", "guardian", "maze", "solar", "ai-sde"];
+
+/**
+ * One project, one card, all cards equal. The whole surface is the button, so
+ * there is no ambiguity about what is clickable: the border lifts, the title
+ * goes optic, and the footer states the action outright.
+ */
+function ProjectCard({
+  project,
+  onOpen,
+}: {
+  project: Project;
+  onOpen: OpenFn;
+}) {
+  return (
+    <button
+      type="button"
+      aria-haspopup="dialog"
+      onClick={(e) => onOpen(project.id, e.currentTarget)}
+      aria-label={`${project.title}: open the film room`}
+      className="group/card flex h-full w-full flex-col rounded-xl border border-chalk/15 bg-white/[0.04] p-5 text-left transition-all duration-150 hover:-translate-y-0.5 hover:border-ball/50 hover:bg-white/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ball motion-reduce:hover:transform-none"
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-chalk/40">
+          {project.period}
+        </span>
+        {project.github === null && (
+          <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-clay">
+            research
+          </span>
+        )}
+      </div>
+
+      <h3 className="display mt-3 text-[17px] uppercase leading-tight text-chalk transition-colors group-hover/card:text-ball">
+        {project.title}
+      </h3>
+
+      <p className="mt-2.5 text-[13.5px] leading-relaxed text-chalk/70">
+        {project.pitch}
+      </p>
+
+      <ul className="mt-4 flex flex-wrap gap-1.5">
+        {project.tags.slice(0, 4).map((t) => (
+          <li
+            key={t}
+            className="rounded-md border border-chalk/12 bg-white/[0.03] px-2 py-0.5 font-mono text-[10px] text-chalk/60"
+          >
+            {t}
+          </li>
+        ))}
+      </ul>
+
+      {/* pinned to the bottom so every card's action line sits on one baseline */}
+      <div className="mt-auto flex items-center justify-between gap-3 border-t border-chalk/10 pt-3.5">
+        <span className="tnum font-mono text-[10px] text-ball">
+          {project.rowMetric}
+        </span>
+        <span className="flex shrink-0 items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-chalk/45 transition-colors group-hover/card:text-ball">
+          film room
+          <svg
+            viewBox="0 0 12 12"
+            width="11"
+            height="11"
+            aria-hidden
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="transition-transform duration-150 group-hover/card:translate-x-0.5"
+          >
+            <path d="M4 2.5 8 6l-4 3.5" />
+          </svg>
+        </span>
+      </div>
+    </button>
+  );
+}
 
 /* Bracket geometry (lg+): two h-44 (176px) cards with a 48px gap = 400px
    column. Semi midpoints y=88 / y=312, final midpoint y=200. All coords
@@ -276,7 +364,10 @@ function MatchRow({
       type="button"
       aria-haspopup="dialog"
       onClick={(e) => onOpen(project.id, e.currentTarget)}
-      className="flex w-full flex-col gap-0.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-chalk/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ball"
+      /* the affordance: a real bordered surface that lifts and brightens, plus
+         a chevron that slides. A row that only changes colour on hover reads
+         as text; this reads as a control. */
+      className="group/row flex w-full flex-col gap-0.5 rounded-md border border-transparent px-2 py-1.5 text-left transition-all duration-150 hover:border-chalk/25 hover:bg-chalk/[0.07] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ball active:scale-[0.99]"
       aria-label={`${project.title}, seed ${project.seed}: open the film room`}
     >
       <span className="flex min-w-0 items-center gap-2">
@@ -294,20 +385,44 @@ function MatchRow({
             isWinner ? "text-chalk" : "text-chalk/45"
           }`}
         >
-          {project.title}
+          {project.short}
         </span>
         {isWinner && (
           <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-widest text-ball">
             adv.
           </span>
         )}
+        {/* chevron: always present so the row looks actionable at rest, and it
+            slides + brightens on hover or keyboard focus */}
+        <svg
+          viewBox="0 0 12 12"
+          aria-hidden
+          className={`shrink-0 transition-all duration-150 group-hover/row:translate-x-0.5 group-hover/row:text-ball group-focus-visible/row:text-ball ${
+            isWinner ? "ml-2 text-chalk/40" : "ml-auto text-chalk/25"
+          }`}
+          width="11"
+          height="11"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M4 2.5 8 6l-4 3.5" />
+        </svg>
       </span>
-      <span
-        className={`pl-[26px] font-mono text-[10px] ${
-          isWinner ? "text-chalk/55" : "text-chalk/35"
-        }`}
-      >
-        {project.rowMetric}
+      <span className="flex items-baseline gap-2 pl-[26px]">
+        <span
+          className={`font-mono text-[10px] ${
+            isWinner ? "text-chalk/55" : "text-chalk/35"
+          }`}
+        >
+          {project.rowMetric}
+        </span>
+        {/* the instruction, revealed on approach so it never adds clutter */}
+        <span className="ml-auto shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-ball opacity-0 transition-opacity duration-150 group-hover/row:opacity-100 group-focus-visible/row:opacity-100">
+          film room →
+        </span>
       </span>
     </button>
   );
@@ -553,99 +668,30 @@ export default function TournamentBracket() {
       className="relative bg-court-deep text-chalk"
       style={{ ["--sel" as string]: "#c8f135" }}
     >
-      <div className="mx-auto max-w-6xl px-5 py-20 lg:py-24">
+      <div className="diagram-mask" aria-hidden>
+        <CourtDiagram crop="kitchen" className="absolute -left-[8%] top-0 h-full w-auto min-w-[60%]" />
+      </div>
+      <div className="relative mx-auto max-w-7xl px-5 py-20 lg:px-8 lg:py-24">
         <SectionHead
-          title="The Bracket"
-          caption="Every entrant is a real, shipped build, seeded by complexity. Open any match for the film room."
-          index="04"
-          meta="main draw"
+          title="The Work"
+          caption="Five shipped builds, each with its own film room: architecture, metrics and the code. Click any card."
+          index="03"
+          meta="projects"
           dark
         />
 
-        {/* -------- lg+: three-column bracket with SVG connectors -------- */}
-        <Reveal className="hidden lg:block">
-          <div className="grid grid-cols-[minmax(0,0.85fr)_2.5rem_minmax(0,1fr)_3rem_minmax(0,1fr)_3rem_minmax(0,1.15fr)] items-center">
-            {/* play-in feeds the top semifinal */}
-            <div className="flex h-[400px] flex-col justify-start">
-              <MatchCard match={PLAY_IN} onOpen={openFilmRoom} className="h-44" />
-            </div>
-
-            <svg
-              viewBox="0 0 40 400"
-              className="h-[400px] w-10 text-chalk/25"
-              aria-hidden
-            >
-              <path d={PLAYIN_STUB} fill="none" stroke="currentColor" strokeWidth="1" />
-            </svg>
-
-            <div className="flex h-[400px] flex-col justify-between">
-              <MatchCard match={SEMI_1} onOpen={openFilmRoom} className="h-44" />
-              <MatchCard match={SEMI_2} onOpen={openFilmRoom} className="h-44" />
-            </div>
-
-            <svg
-              viewBox="0 0 48 400"
-              className="h-[400px] w-12 text-chalk/25"
-              aria-hidden
-            >
-              <path d={ELBOW_TOP} fill="none" stroke="currentColor" strokeWidth="1" />
-              <path d={ELBOW_BOTTOM} fill="none" stroke="currentColor" strokeWidth="1" />
-              <path d={ELBOW_STUB} fill="none" stroke="currentColor" strokeWidth="1" />
-            </svg>
-
-            <div className="flex h-[400px] items-center">
-              <MatchCard match={FINAL} onOpen={openFilmRoom} className="h-44 w-full" />
-            </div>
-
-            <svg
-              viewBox="0 0 48 400"
-              className="h-[400px] w-12 text-chalk/25"
-              aria-hidden
-            >
-              <path d={FINAL_STUB} fill="none" stroke="currentColor" strokeWidth="1" />
-            </svg>
-
-            <div className="flex h-[400px] items-center">
-              <ChampionCard onOpen={openFilmRoom} />
-            </div>
-          </div>
-        </Reveal>
-
-        {/* -------- <lg: stacked list grouped by round -------- */}
-        <div className="space-y-10 lg:hidden">
-          <Reveal>
-            <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-chalk/45">
-              Play-in
-            </h3>
-            <div className="mt-3">
-              <MatchCard match={PLAY_IN} onOpen={openFilmRoom} />
-            </div>
-          </Reveal>
-          <Reveal delay={40}>
-            <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-chalk/45">
-              Semifinals
-            </h3>
-            <div className="mt-3 space-y-4">
-              <MatchCard match={SEMI_1} onOpen={openFilmRoom} />
-              <MatchCard match={SEMI_2} onOpen={openFilmRoom} />
-            </div>
-          </Reveal>
-          <Reveal delay={80}>
-            <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-chalk/45">
-              Final
-            </h3>
-            <div className="mt-3">
-              <MatchCard match={FINAL} onOpen={openFilmRoom} />
-            </div>
-          </Reveal>
-          <Reveal delay={160}>
-            <h3 className="font-mono text-[11px] uppercase tracking-[0.25em] text-chalk/45">
-              Champion
-            </h3>
-            <div className="mt-3">
-              <ChampionCard onOpen={openFilmRoom} />
-            </div>
-          </Reveal>
+        {/* Equal layout, deliberately. This was a seeded tournament bracket,
+            which forced a hierarchy onto the work: one champion, a play-in, and
+            losers. Every one of these is real and shipped, so they get the same
+            card, the same size and the same weight. */}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {/* h-full on each wrapper so the grid's stretch reaches the card and
+              every card in a row ends on the same baseline */}
+          {ORDER.map((id, i) => (
+            <Reveal key={id} delay={i * 60} className="h-full">
+              <ProjectCard project={PROJECTS[id]} onOpen={openFilmRoom} />
+            </Reveal>
+          ))}
         </div>
       </div>
 

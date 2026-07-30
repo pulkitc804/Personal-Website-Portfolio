@@ -56,7 +56,7 @@ export default function SectionHead({
     };
   }, []);
 
-  const dim = dark ? "text-chalk/45" : "text-ink/45";
+  const dim = dark ? "text-clay/70" : "text-ink/45";
   const body = dark ? "text-chalk/70" : "text-ink-soft";
 
   return (

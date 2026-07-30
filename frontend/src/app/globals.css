@@ -220,11 +220,35 @@ body {
 /* night-tournament lighting: twin floodlight pools from above, a faint cool
    fill, and a real vignette so the frame has photographic depth, not flatness */
 .court-night {
+  /* floodlights with a saturated mid-teal step between base and wash (the
+     banding fix is intermediate stops, never a noise layer), and a firmer
+     edge vignette so the frame darkens outward like a lit court at night */
   background:
-    radial-gradient(46% 40% at 28% -8%, rgba(216, 240, 196, 0.1), transparent 62%),
-    radial-gradient(46% 40% at 72% -8%, rgba(216, 240, 196, 0.1), transparent 62%),
+    radial-gradient(46% 40% at 28% -8%, rgba(216, 240, 196, 0.1), rgba(24, 96, 88, 0.05) 40%, transparent 62%),
+    radial-gradient(46% 40% at 72% -8%, rgba(216, 240, 196, 0.1), rgba(24, 96, 88, 0.05) 40%, transparent 62%),
     radial-gradient(100% 76% at 50% 2%, rgba(255, 255, 255, 0.045), transparent 58%),
-    radial-gradient(130% 105% at 50% 46%, transparent 52%, rgba(1, 8, 7, 0.6) 100%);
+    radial-gradient(52% 40% at 8% 104%, rgba(204, 91, 56, 0.07), transparent 60%),
+    radial-gradient(120% 105% at 50% 40%, transparent 55%, rgba(1, 8, 7, 0.65) 100%);
+}
+
+/* one raking-light sweep per long section: sheen on painted acrylic, not
+   texture. Kept under 4% alpha so it registers only as surface. */
+.sheen {
+  /* raking light + a barely-there vertical drift, so long sections read as a
+     lit surface rather than one flat slab. Both smooth, no texture. */
+  background-image:
+    linear-gradient(180deg, rgba(242, 238, 226, 0.022), transparent 22rem),
+    linear-gradient(135deg, rgba(242, 238, 226, 0.03), transparent 50%, rgba(1, 8, 7, 0.04));
+}
+
+/* wrapper for the oversized court diagram: clips it, dissolves its edges into
+   the surface so the drawing never stops on a hard rectangle */
+.diagram-mask {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 45%, #000 40%, transparent 78%);
+  mask-image: radial-gradient(120% 100% at 50% 45%, #000 40%, transparent 78%);
 }
 
 /* hairline chalk rule used to align/structure the hero */
@@ -248,6 +272,27 @@ body {
     transition: none;
     transform: none !important;
   }
+}
+
+/* Hero portrait: a real photograph graded to sit in the court palette. The
+   studio grey stays readable on purpose (light backdrops pop against a dark
+   page); the tint only closes the gap to the teal, so it never looks filtered. */
+.portrait-grade img {
+  filter: saturate(0.9) contrast(1.06) brightness(0.98);
+}
+.portrait-grade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    205deg,
+    rgba(14, 79, 76, 0.3) 0%,
+    rgba(7, 33, 31, 0.08) 48%,
+    rgba(7, 33, 31, 0.42) 100%
+  );
+  mix-blend-mode: multiply;
+  pointer-events: none;
 }
 
 /* horizontal shelf: hide the scrollbar, the rail underneath reports position */

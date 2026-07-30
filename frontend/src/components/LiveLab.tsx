@@ -278,14 +278,14 @@ function MazeLab({ live }: { live: boolean }) {
   return (
     <div className="flex flex-col">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="display text-lg uppercase text-chalk">Maze environment</h3>
+        <h3 className="display text-lg uppercase text-chalk">Maze Policy Network</h3>
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-chalk/40">
-          winlab
+          winlab · conv policy
         </span>
       </div>
       <canvas
         ref={canvasRef}
-        className="h-[260px] w-full rounded-lg border border-chalk/12 bg-court-deep/70"
+        className="h-[260px] w-full rounded-lg border border-chalk/12 bg-white/[0.03]"
         aria-hidden
       />
       <p className="mt-3 font-mono text-[11px] text-ball" aria-live="polite">
@@ -479,14 +479,14 @@ function MonteCarloLab({ live }: { live: boolean }) {
   return (
     <div className="flex flex-col">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="display text-lg uppercase text-chalk">Monte Carlo engine</h3>
+        <h3 className="display text-lg uppercase text-chalk">AI-SDE Engine</h3>
         <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-chalk/40">
-          ai-sde
+          quant · monte carlo
         </span>
       </div>
       <canvas
         ref={canvasRef}
-        className="h-[260px] w-full rounded-lg border border-chalk/12 bg-court-deep/70"
+        className="h-[260px] w-full rounded-lg border border-chalk/12 bg-white/[0.03]"
         aria-hidden
       />
       <p className="mt-3 font-mono text-[11px] text-ball" aria-live="polite">
@@ -501,6 +501,301 @@ function MonteCarloLab({ live }: { live: boolean }) {
     </div>
   );
 }
+
+/* ----------------------------- scarletai lab ---------------------------- */
+
+/**
+ * The retrieval half of ScarletAI, running for real. Ask a question and this
+ * scores it against every passage with TF-IDF cosine similarity, computed in
+ * the browser, and shows the ranking it produces. That is the step that stops
+ * the assistant guessing: the model only ever writes from what comes back.
+ *
+ * The passages below are a small SAMPLE corpus, labelled as such, kept to
+ * general facts about the university. The production index is built from
+ * official Rutgers pages and embedded with Gemini or Ollama into a vector
+ * store; TF-IDF is the honest offline stand-in for that similarity search.
+ */
+const CORPUS: { topic: string; text: string }[] = [
+  {
+    topic: "Buses",
+    text: "Rutgers New Brunswick runs a campus bus system connecting its campuses, and riders track routes and arrival times through the university transit app.",
+  },
+  {
+    topic: "Campuses",
+    text: "Rutgers New Brunswick is spread across several campuses including College Avenue, Busch, Livingston, Cook and Douglass, which is why getting between classes usually means a bus.",
+  },
+  {
+    topic: "Dining",
+    text: "The university operates dining halls across the campuses along with retail food locations, and meal plans are what most students use to eat on campus.",
+  },
+  {
+    topic: "Majors",
+    text: "Undergraduates choose from a wide range of majors across schools such as Arts and Sciences and the School of Engineering, and declaring a major has its own requirements and deadlines.",
+  },
+  {
+    topic: "Schedule of Classes",
+    text: "The Schedule of Classes lists course sections, meeting times, instructors and open seats for each term, and students use it to plan and register for courses.",
+  },
+  {
+    topic: "Academic calendar",
+    text: "The academic calendar sets the start and end of each term along with registration windows, breaks, reading days and final exam periods.",
+  },
+  {
+    topic: "Libraries",
+    text: "Rutgers libraries provide study space, research databases and course reserves, with separate library buildings serving different campuses.",
+  },
+  {
+    topic: "Advising",
+    text: "Academic advising helps students pick courses, track degree requirements and stay on plan toward graduation.",
+  },
+];
+
+const tokenize = (s: string): string[] => s.toLowerCase().match(/[a-z0-9]+/g) ?? [];
+
+/* index built once at module scope: document frequency, then a tf-idf vector
+   per passage. Deterministic, so server and client agree. */
+const DOC_TOKENS = CORPUS.map((d) => tokenize(`${d.topic} ${d.text}`));
+const DF = new Map<string, number>();
+for (const toks of DOC_TOKENS) {
+  // Array.from keeps this valid under the project's compile target
+  Array.from(new Set(toks)).forEach((t) => DF.set(t, (DF.get(t) ?? 0) + 1));
+}
+const idf = (t: string) => Math.log((CORPUS.length + 1) / ((DF.get(t) ?? 0) + 1)) + 1;
+
+function tfidf(tokens: string[]): Map<string, number> {
+  const tf = new Map<string, number>();
+  for (const t of tokens) tf.set(t, (tf.get(t) ?? 0) + 1);
+  const v = new Map<string, number>();
+  tf.forEach((count, t) => v.set(t, (count / Math.max(1, tokens.length)) * idf(t)));
+  return v;
+}
+
+function cosine(a: Map<string, number>, b: Map<string, number>): number {
+  let dot = 0;
+  let na = 0;
+  let nb = 0;
+  a.forEach((va, t) => {
+    na += va * va;
+    const vb = b.get(t);
+    if (vb) dot += va * vb;
+  });
+  b.forEach((vb) => (nb += vb * vb));
+  const d = Math.sqrt(na) * Math.sqrt(nb);
+  return d === 0 ? 0 : dot / d;
+}
+
+const DOC_VECS = DOC_TOKENS.map(tfidf);
+
+const SAMPLE_QUESTIONS = [
+  "how do I get between campuses",
+  "where can I eat on campus",
+  "when does registration open",
+  "how do I find open seats in a course",
+];
+
+function ScarletLab() {
+  const [query, setQuery] = useState(SAMPLE_QUESTIONS[0]);
+
+  const ranked = (() => {
+    const qv = tfidf(tokenize(query));
+    return CORPUS.map((d, i) => ({ ...d, score: cosine(qv, DOC_VECS[i]) })).sort(
+      (a, b) => b.score - a.score,
+    );
+  })();
+  const top = ranked[0];
+  const grounded = top.score > 0.01;
+
+  /* ----- the constellation: passages arced over the query, wired by score.
+     Every line's weight and brightness is the real cosine similarity, so the
+     picture IS the algorithm. Coordinates are rounded for SSR stability. ----- */
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  const QX = 280;
+  const QY = 252;
+  const nodes = CORPUS.map((d, i) => {
+    const t = CORPUS.length === 1 ? 0.5 : i / (CORPUS.length - 1);
+    const a = Math.PI * (1 - t); // 180deg .. 0deg
+    return {
+      topic: d.topic,
+      x: r2(QX + Math.cos(a) * 236),
+      y: r2(QY - Math.sin(a) * 168),
+    };
+  });
+  const scoreOf = (topic: string) => ranked.find((r) => r.topic === topic)!.score;
+  const isTop = (topic: string) => grounded && top.topic === topic;
+
+  return (
+    <div className="flex flex-col">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <h3 className="display text-lg uppercase text-chalk">ScarletAI</h3>
+        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-chalk/40">
+          rutgers agent · rag
+        </span>
+      </div>
+
+      <div className="rounded-lg border border-chalk/12 bg-white/[0.03] p-4 lg:p-6">
+        {/* ask */}
+        <label className="block">
+          <span className="sr-only">Ask the sample corpus a question</span>
+          <div className="flex items-center gap-2 border-b border-chalk/15 pb-2 focus-within:border-ball">
+            <span aria-hidden className="font-mono text-[13px] text-ball">
+              ?
+            </span>
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="ask about campus"
+              className="w-full bg-transparent font-mono text-[13px] text-chalk caret-ball outline-none placeholder:text-chalk/30"
+            />
+          </div>
+        </label>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {SAMPLE_QUESTIONS.map((q) => (
+            <button
+              key={q}
+              type="button"
+              onClick={() => {
+                resume();
+                pop(0.22);
+                setQuery(q);
+              }}
+              className={`rounded-full border px-3 py-1 font-mono text-[10px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ball ${
+                query === q
+                  ? "border-ball/60 bg-ball/10 text-ball"
+                  : "border-chalk/20 text-chalk/60 hover:border-chalk/50 hover:text-chalk"
+              }`}
+            >
+              {q}
+            </button>
+          ))}
+        </div>
+
+        {/* the constellation */}
+        <svg
+          viewBox="0 0 560 290"
+          className="mt-2 block h-auto w-full select-none"
+          role="img"
+          aria-label="Retrieval graph: the question at the base, corpus passages arced above it, each connection weighted by its live similarity score"
+        >
+          {/* wires, weighted by the real score */}
+          {nodes.map((n) => {
+            const s = scoreOf(n.topic);
+            const hot = isTop(n.topic);
+            return (
+              <line
+                key={`w-${n.topic}`}
+                x1={QX}
+                y1={QY}
+                x2={n.x}
+                y2={n.y}
+                stroke={hot ? "#c8f135" : "#f2eee2"}
+                strokeOpacity={r2(Math.min(0.85, (hot ? 0.5 : 0.08) + s * 1.6))}
+                strokeWidth={r2(0.75 + Math.min(1, s * 2.2) * (hot ? 2.6 : 1.4))}
+                className="transition-all duration-300"
+              />
+            );
+          })}
+
+          {/* passage nodes */}
+          {nodes.map((n) => {
+            const s = scoreOf(n.topic);
+            const hot = isTop(n.topic);
+            return (
+              <g key={`n-${n.topic}`} className="transition-all duration-300">
+                <circle
+                  cx={n.x}
+                  cy={n.y}
+                  r={r2(4 + Math.min(1, s * 2.2) * 5)}
+                  fill={hot ? "#c8f135" : "#0e4f4c"}
+                  stroke={hot ? "#c8f135" : "#f2eee2"}
+                  strokeOpacity={hot ? 1 : 0.35}
+                  strokeWidth={1.2}
+                />
+                <text
+                  x={n.x}
+                  y={n.y - 13}
+                  textAnchor="middle"
+                  fontSize={9.5}
+                  letterSpacing={0.8}
+                  fill={hot ? "#c8f135" : "#f2eee2"}
+                  fillOpacity={hot ? 0.95 : 0.42}
+                  className="font-mono uppercase transition-all duration-300"
+                >
+                  {n.topic}
+                </text>
+                {hot && (
+                  <text
+                    x={n.x}
+                    y={n.y + 20}
+                    textAnchor="middle"
+                    fontSize={9}
+                    fill="#c8f135"
+                    fillOpacity={0.8}
+                    className="font-mono"
+                  >
+                    {s.toFixed(3)}
+                  </text>
+                )}
+              </g>
+            );
+          })}
+
+          {/* the query node */}
+          <circle cx={QX} cy={QY} r={7} fill="#c8f135" />
+          <circle cx={QX} cy={QY} r={12} fill="none" stroke="#c8f135" strokeOpacity={0.35} strokeWidth={1} />
+          <text
+            x={QX}
+            y={QY + 26}
+            textAnchor="middle"
+            fontSize={9.5}
+            letterSpacing={1}
+            fill="#f2eee2"
+            fillOpacity={0.5}
+            className="font-mono uppercase"
+          >
+            your question
+          </text>
+        </svg>
+
+        {/* the answer */}
+        <div
+          aria-live="polite"
+          className="mt-1 rounded-md border border-chalk/12 bg-[#04120f] p-4"
+        >
+          {grounded ? (
+            <>
+              <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.16em] text-chalk/45">
+                answer, grounded in
+                <span className="rounded border border-ball/30 px-1.5 py-0.5 text-ball/80">
+                  {top.topic}
+                </span>
+              </p>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-chalk/85">
+                {top.text}
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-mono text-[10px] uppercase tracking-[0.16em] text-clay">
+                nothing retrieved
+              </p>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-chalk/70">
+                Not in the corpus, so it declines instead of guessing. That
+                refusal is the entire point of grounding.
+              </p>
+            </>
+          )}
+        </div>
+
+        <p className="mt-3 font-mono text-[9px] uppercase tracking-[0.12em] text-chalk/30">
+          live tf-idf cosine over a labelled sample corpus · production: full
+          Rutgers corpus, vector store, routed across Gemini · Groq · Ollama ·
+          Anthropic
+        </p>
+      </div>
+    </div>
+  );
+}
+
 
 /* ------------------------------- section -------------------------------- */
 
@@ -520,8 +815,8 @@ export default function LiveLab() {
       <div className="mx-auto max-w-7xl px-5 py-20 lg:px-10 lg:py-28">
         <SectionHead
           title="The Lab"
-          caption="Two of these projects are not screenshots. They are the actual algorithms, running right now in your browser."
-          index="05"
+          caption="ScarletAI, the maze policy network and the AI-SDE engine are not screenshots here. These are the actual algorithms, running right now in your browser."
+          index="04"
           meta="live compute"
           dark
         />
@@ -529,6 +824,10 @@ export default function LiveLab() {
         <div className="grid gap-10 lg:grid-cols-2 lg:gap-14">
           <MazeLab live={live} />
           <MonteCarloLab live={live} />
+          {/* retrieval spans both columns: it needs the width for prose */}
+          <div className="lg:col-span-2">
+            <ScarletLab />
+          </div>
         </div>
 
         <div className="mt-10 flex flex-wrap items-center gap-3 border-t border-chalk/12 pt-6">

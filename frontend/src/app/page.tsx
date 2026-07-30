@@ -1,12 +1,10 @@
 import NavBar from "@/components/NavBar";
-import SideRail from "@/components/SideRail";
+import BottomNav from "@/components/BottomNav";
 import Hero from "@/components/Hero";
-import AboutSection from "@/components/AboutSection";
 import RallyTimeline from "@/components/RallyTimeline";
 import SkillRally from "@/components/SkillRally";
 import TournamentBracket from "@/components/TournamentBracket";
 import LiveLab from "@/components/LiveLab";
-import CourtAnalytics from "@/components/CourtAnalytics";
 import TrophyCase from "@/components/TrophyCase";
 import ServeTerminal from "@/components/ServeTerminal";
 import Footer from "@/components/Footer";
@@ -20,23 +18,21 @@ export default function Home() {
   return (
     <>
       <NavBar />
-      <SideRail />
+      <BottomNav />
       <ScrollBall />
       <main>
         <Hero profile={profile} />
-        <AboutSection profile={profile} />
         <RallyTimeline
           id="experience"
           title="The Season"
           caption="The roles I'm playing now, in order of the clock. Follow the ball."
-          index="02"
+          index="01"
           meta="current season"
           stations={EXPERIENCE_CARDS}
         />
         <SkillRally />
         <TournamentBracket />
         <LiveLab />
-        <CourtAnalytics />
         <TrophyCase
           awards={skills.awards}
           coursework={profile.coursework}

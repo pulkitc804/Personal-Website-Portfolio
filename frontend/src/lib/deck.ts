@@ -112,6 +112,8 @@ export const EXPERIENCE_CARDS: CardSpec[] = [
     ],
     back: {
       lines: byId(EXPERIENCE, "ds101").bullets,
+      link: byId(EXPERIENCE, "ds101").link,
+      linkLabel: "Rutgers CS →",
     },
   },
   {

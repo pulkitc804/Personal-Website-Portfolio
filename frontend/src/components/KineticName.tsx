@@ -75,8 +75,15 @@ export default function KineticName({ className = "" }: { className?: string }) 
     ));
 
   return (
+    /**
+     * The size is capped against the CONTAINER, not the viewport. An 8.5vw
+     * headline overflowed its grid column on wide screens and ran into
+     * whatever sat to the right of it. Sizing in cqw (container query width)
+     * ties the type to the column it actually lives in, and max-w-full plus a
+     * per-letter break guard means it can never push past its own box.
+     */
     <h1
-      className={`display text-[clamp(3rem,8.5vw,5.75rem)] uppercase [text-wrap:balance] ${className}`}
+      className={`display max-w-full text-[clamp(2.25rem,11cqw,4.5rem)] uppercase [overflow-wrap:anywhere] [text-wrap:balance] ${className}`}
       ref={ref}
     >
       <span className="block">{render("PULKIT")}</span>

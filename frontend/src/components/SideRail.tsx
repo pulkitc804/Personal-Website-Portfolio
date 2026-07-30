@@ -9,12 +9,11 @@ import { useEffect, useState } from "react";
  * the top bar carries the wordmark + controls on mobile.
  */
 const SECTIONS = [
-  { id: "about", label: "The Player" },
+  { id: "top", label: "The Player" },
   { id: "experience", label: "The Season" },
   { id: "skills", label: "Skill Rally" },
   { id: "projects", label: "The Bracket" },
   { id: "lab", label: "The Lab" },
-  { id: "analytics", label: "Court-Side" },
   { id: "trophies", label: "Trophy Case" },
   { id: "contact", label: "Your Serve" },
 ];
