@@ -250,6 +250,35 @@ body {
   }
 }
 
+/* Hero portrait: a real photograph graded to sit in the court palette. The
+   studio grey is left readable on purpose (light backdrops pop against a dark
+   page); the tint only closes the gap to the teal, so it never looks filtered. */
+.portrait-grade img {
+  filter: saturate(0.9) contrast(1.06) brightness(0.97);
+}
+.portrait-grade::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    200deg,
+    rgba(14, 79, 76, 0.26) 0%,
+    rgba(7, 33, 31, 0.1) 45%,
+    rgba(7, 33, 31, 0.55) 100%
+  );
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+/* the crop resolves into the page instead of stopping on a hard edge */
+.portrait-grade::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(to top, rgba(7, 33, 31, 0.95), transparent 34%);
+  pointer-events: none;
+}
+
 /* horizontal shelf: hide the scrollbar, the rail underneath reports position */
 .no-bar::-webkit-scrollbar {
   display: none;
