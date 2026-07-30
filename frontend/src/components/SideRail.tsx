@@ -52,11 +52,11 @@ export default function SideRail() {
             aria-current={on ? "true" : undefined}
             className="group flex items-center justify-end gap-3"
           >
-            {/* the rail floats over whatever is behind it, including the hero
-                photograph, so the labels carry their own contrast */}
             <span
-              className={`font-mono text-[11px] uppercase tracking-[0.16em] [text-shadow:0_1px_5px_rgba(4,18,17,0.95),0_0_14px_rgba(4,18,17,0.7)] transition-all duration-300 ${
-                on ? "text-chalk" : "text-chalk/55 group-hover:text-chalk/90"
+              className={`font-mono text-[11px] uppercase tracking-[0.16em] transition-all duration-300 ${
+                on
+                  ? "text-chalk"
+                  : "text-chalk/40 group-hover:text-chalk/75"
               }`}
             >
               {s.label}

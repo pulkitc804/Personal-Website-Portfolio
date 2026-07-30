@@ -1,6 +1,7 @@
 import type { Profile } from "@/lib/types";
 import SectionHead from "./SectionHead";
 import Reveal from "./Reveal";
+import Portrait from "./Portrait";
 
 /**
  * The profile block. The photograph and the record carry this section; the
@@ -44,10 +45,11 @@ export default function AboutSection({ profile }: { profile: Profile }) {
         />
 
         <div className="grid gap-12 lg:grid-cols-[minmax(0,320px)_minmax(0,1fr)] lg:gap-16">
-          {/* roster plate. The photograph lives in the hero now, so repeating
-              it here would only dilute it. */}
+          {/* photograph + roster plate */}
           <Reveal className="lg:sticky lg:top-24 lg:self-start">
-            <dl className="divide-y divide-chalk/12 border-y border-chalk/12">
+            <Portrait />
+
+            <dl className="mt-5 divide-y divide-chalk/12 border-y border-chalk/12">
               {roster.map(([k, v]) => (
                 <div key={k} className="flex items-baseline justify-between gap-4 py-2.5">
                   <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-chalk/40">
