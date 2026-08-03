@@ -135,34 +135,46 @@ export default function Hero({ profile }: { profile: Profile }) {
 
         {/* ---------- full-bleed base band ---------- */}
         <div className="relative z-10 w-full px-5 pb-24 sm:px-8 lg:px-12 lg:pb-28">
-          <div className="mb-6 flex flex-wrap items-center gap-x-10 gap-y-4">
-            <span className="font-mono text-[10px] uppercase tracking-[0.24em] text-chalk/30">
+          {/* the marks span the whole row, evenly, at real size: a band, not
+              a caption huddled in the corner */}
+          <div className="mb-7 flex w-full flex-wrap items-center justify-between gap-x-8 gap-y-4">
+            <span className="font-mono text-xs uppercase tracking-[0.24em] text-chalk/35">
               Currently
             </span>
             {[
-              { src: "/logos/blaze.svg", alt: "Blaze (Y Combinator S24)", h: "h-3.5" },
-              { src: "/logos/rutgers.png", alt: "Rutgers University", h: "h-4" },
+              { src: "/logos/blaze.svg", alt: "Blaze (Y Combinator S24)", h: "h-5" },
+              { src: "/logos/rutgers.png", alt: "Rutgers University", h: "h-6" },
             ].map((l) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img
                 key={l.src}
                 src={l.src}
                 alt={l.alt}
-                className={`${l.h} w-auto opacity-55 [filter:brightness(0)_invert(1)]`}
+                className={`${l.h} w-auto opacity-70 [filter:brightness(0)_invert(1)]`}
               />
             ))}
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-chalk/50">
+            <span className="font-mono text-sm uppercase tracking-[0.18em] text-chalk/65">
               WINLAB
             </span>
           </div>
           <div className="hairline mb-5" data-net-rule />
-          <dl className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-4">
+          {/* proportional tracks: the majors cell gets the width its one-line
+              string needs, GPA takes only what a number needs */}
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-4 sm:grid-cols-[1.1fr_2fr_0.5fr_1.2fr]">
             {ribbon.map(([k, v]) => (
-              <div key={k}>
+              <div key={k} className="min-w-0">
                 <dt className="font-mono text-[10px] uppercase tracking-[0.18em] text-chalk/45">
                   {k}
                 </dt>
-                <dd className="tnum mt-1 text-sm font-semibold text-chalk">{v}</dd>
+                <dd
+                  className={`tnum mt-1 text-sm font-semibold text-chalk ${
+                    k === "Quadruple major"
+                      ? "sm:whitespace-nowrap sm:text-[clamp(11px,1.02vw,14px)]"
+                      : ""
+                  }`}
+                >
+                  {v}
+                </dd>
               </div>
             ))}
           </dl>

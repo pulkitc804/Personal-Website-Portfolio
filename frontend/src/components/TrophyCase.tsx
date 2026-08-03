@@ -135,8 +135,26 @@ export default function TrophyCase({
                   : "h-40 w-[200px] border-chalk/15 bg-white/[0.02] hover:border-chalk/45"
             }`}
           >
+            {/* award plates read as tournament tickets: punched notches and a
+                perforation line ahead of the stub */}
+            {p.kind === "award" && (
+              <>
+                <span
+                  aria-hidden
+                  className="absolute -left-2.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border border-clay/45 bg-court-deep"
+                />
+                <span
+                  aria-hidden
+                  className="absolute -right-2.5 top-1/2 h-5 w-5 -translate-y-1/2 rounded-full border border-clay/45 bg-court-deep"
+                />
+                <span
+                  aria-hidden
+                  className="absolute inset-y-3 right-[64px] w-px border-r border-dashed border-clay/40"
+                />
+              </>
+            )}
             <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-chalk/40">
-              {p.kind === "award" ? "award" : p.kind === "stat" ? "record" : "coursework"}
+              {p.kind === "award" ? "admit one" : p.kind === "stat" ? "record" : "coursework"}
             </span>
 
             {p.kind === "stat" ? (
@@ -144,7 +162,7 @@ export default function TrophyCase({
             ) : (
               <span
                 className={`display uppercase leading-tight ${
-                  p.kind === "award" ? "text-lg" : "text-[15px] text-chalk/85"
+                  p.kind === "award" ? "pr-[72px] text-lg" : "text-[15px] text-chalk/85"
                 }`}
               >
                 {p.label}

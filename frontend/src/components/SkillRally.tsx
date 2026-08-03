@@ -179,7 +179,17 @@ const BODY_CLASS: Record<TermLine["kind"], string> = {
   mastery: "text-ball",
 };
 
-function Terminal({ tech, run }: { tech: Tech; run: number }) {
+function Terminal({
+  tech,
+  run,
+  techs,
+  onSelect,
+}: {
+  tech: Tech;
+  run: number;
+  techs: Tech[];
+  onSelect: (id: TechId) => void;
+}) {
   const lines = useMemo(() => termLines(tech), [tech]);
   const total = useMemo(
     () => lines.reduce((s, l) => s + l.head.length + l.body.length + PAUSE, 0),
@@ -222,6 +232,13 @@ function Terminal({ tech, run }: { tech: Tech; run: number }) {
     };
   });
 
+  const mastery: Record<string, string> = {
+    production: "text-ball border-ball/40",
+    research: "text-chalk border-chalk/35",
+    teaching: "text-clay border-clay/45",
+  };
+  const masteryCls = mastery[tech.mastery] ?? "text-chalk/60 border-chalk/25";
+
   return (
     <div className="mt-6 overflow-hidden rounded-lg border border-chalk/15 bg-[#04120f]">
       <div className="flex items-center gap-2 border-b border-chalk/10 px-4 py-2.5">
@@ -231,6 +248,37 @@ function Terminal({ tech, run }: { tech: Tech; run: number }) {
         <span className="ml-2 font-mono text-[12px] text-chalk/45">
           pulkit@courtside: ~/rally
         </span>
+      </div>
+
+      {/* the roster lives IN the window as tabs, tmux-style: index:name. One
+          control surface instead of chips floating above a replica terminal. */}
+      <div
+        role="tablist"
+        aria-label="Tech logs"
+        className="no-bar flex overflow-x-auto border-b border-chalk/10 bg-[#03100d]"
+      >
+        {techs.map((t, i) => {
+          const active = t.id === tech.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => onSelect(t.id)}
+              className={`relative shrink-0 whitespace-nowrap px-3.5 py-2 font-mono text-[11px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ball ${
+                active
+                  ? "bg-[#04120f] text-ball"
+                  : "text-chalk/45 hover:bg-chalk/[0.04] hover:text-chalk/85"
+              }`}
+            >
+              {active && (
+                <span aria-hidden className="absolute inset-x-0 top-0 h-[2px] bg-ball" />
+              )}
+              {i + 1}:{t.short}
+            </button>
+          );
+        })}
       </div>
       <div
         role="log"
@@ -243,7 +291,14 @@ function Terminal({ tech, run }: { tech: Tech; run: number }) {
           const isCursor = i === cursorRow;
           if (r.headShown.length === 0 && !isCursor) return null;
           return (
-            <div key={`${tech.id}-${i}`}>
+            <div key={`${tech.id}-${i}`} className="flex gap-3">
+              <span
+                aria-hidden
+                className="w-[2ch] shrink-0 select-none text-right text-chalk/25"
+              >
+                {i + 1}
+              </span>
+              <span className="min-w-0">
               <span className={HEAD_CLASS[r.line.kind]}>{r.headShown}</span>
               <span className={BODY_CLASS[r.line.kind]}>{r.bodyShown}</span>
               {isCursor && (
@@ -252,9 +307,26 @@ function Terminal({ tech, run }: { tech: Tech; run: number }) {
                   className="ml-1 inline-block h-[15px] w-[7px] translate-y-[3px] rounded-[1px] bg-ball/90 animate-pulse motion-reduce:animate-none"
                 />
               )}
+              </span>
             </div>
           );
         })}
+      </div>
+
+      {/* status bar: live facts, tmux grammar */}
+      <div className="flex items-center justify-between gap-4 border-t border-chalk/10 bg-[#03100d] px-4 py-1.5 font-mono text-[10px]">
+        <span className="flex min-w-0 items-center gap-2">
+          <span aria-hidden className="h-1.5 w-1.5 shrink-0 rounded-full bg-ball" />
+          <span className="truncate text-chalk/60">{tech.chip}</span>
+          <span
+            className={`shrink-0 rounded-sm border px-1.5 py-px uppercase tracking-[0.08em] ${masteryCls}`}
+          >
+            {tech.mastery}
+          </span>
+        </span>
+        <span className="shrink-0 text-chalk/35">
+          {lines.length} lines · utf-8 · rally
+        </span>
       </div>
     </div>
   );
@@ -271,10 +343,10 @@ const PADDLE_R = 32;
 
 export default function SkillRally() {
   const [sel, setSel] = useState<{ id: TechId; run: number }>({
-    id: "python",
+    id: "claude-mcp",
     run: 0,
   });
-  const selRef = useRef<TechId>("python");
+  const selRef = useRef<TechId>("claude-mcp");
   const [arenaOn, setArenaOn] = useState(false);
 
   const sectionRef = useRef<HTMLElement | null>(null);
@@ -673,31 +745,6 @@ export default function SkillRally() {
           dark
         />
 
-        <div role="group" aria-label="Tech roster" className="flex flex-wrap gap-2.5">
-          {TECHS.map((t) => {
-            const active = sel.id === t.id;
-            return (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={active}
-                onClick={() => {
-                  resume();
-                  pop(0.35);
-                  selectTech(t.id);
-                }}
-                className={`rounded-full border px-3.5 py-1.5 font-mono text-[13px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ball focus-visible:ring-offset-2 focus-visible:ring-offset-court ${
-                  active
-                    ? "border-ball bg-ball text-ink"
-                    : "border-chalk/25 text-chalk/85 hover:border-chalk/60 hover:text-chalk"
-                }`}
-              >
-                {t.chip}
-              </button>
-            );
-          })}
-        </div>
-
         {arenaOn && (
           <div className="mt-6 hidden lg:block">
             <div ref={wrapRef}>
@@ -714,7 +761,16 @@ export default function SkillRally() {
           </div>
         )}
 
-        <Terminal tech={selected} run={sel.run} />
+        <Terminal
+          tech={selected}
+          run={sel.run}
+          techs={TECHS}
+          onSelect={(id) => {
+            resume();
+            pop(0.35);
+            selectTech(id);
+          }}
+        />
       </div>
     </section>
   );
